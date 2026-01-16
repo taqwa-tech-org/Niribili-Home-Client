@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
 const userMenuItems = [
+  {icon: Home, label: "হোম", href: "/"},
   { icon: LayoutDashboard, label: "ড্যাশবোর্ড", href: "/user-dashboard" },
   { icon: UtensilsCrossed, label: "খাবার অর্ডার", href: "/user-dashboard/meals" },
   { icon: CreditCard, label: "বিলিং", href: "/user-dashboard/billing" },
@@ -39,12 +40,12 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex ">
       {/* Sidebar - Desktop */}
       <aside className="hidden border  lg:flex w-64 flex-col fixed inset-y-0 left-0 z-50">
 
         {/* Logo */}
-        <div className="h-16 flex items-center gap-2 px-6 border-b border-border">
+        <div className="h-16 flex items-center gap-2  px-6 border-b border-border">
           <div className="w-8 h-8 rounded-lg  flex items-center justify-center">
             <img src="/niribili-logo.png" alt="" />
           </div>
