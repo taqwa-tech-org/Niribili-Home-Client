@@ -33,7 +33,7 @@ const UserMeals: React.FC = () => {
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // কাট-অফ টাইম লজিক (10:00 PM)
+  // Cut Of Time Logic (10:00 PM)
   const isLocked = () => {
     const hours = currentTime.getHours();
     return hours >= 22; // 10 PM = 22:00
