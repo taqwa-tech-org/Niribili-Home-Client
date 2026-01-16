@@ -2,9 +2,9 @@ import App from "@/App";
 import AuthComponent from "@/components/Auth/AuthComponent";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Index from "@/pages";
-import AdminDashboard from "@/pages/AdminDashboard/AdminDashboard";
 import NotFound from "@/pages/NotFound";
 import UserDashboard from "@/pages/UserDashboard";
+import UserMeals from "@/pages/UserMeals";
 import { createBrowserRouter } from "react-router-dom";
 
 
@@ -23,18 +23,13 @@ const appRoutes = createBrowserRouter([
     },
     {
         path: "user-dashboard",
-        element: <DashboardLayout role="user" />,
+        element: <DashboardLayout  />,
         children: [
             { index: true, element: <UserDashboard /> },
+            { path: '/user-dashboard/meals', element: <UserMeals /> },
         ],
     },
-    {
-        path: "admin-dashboard",
-        element: <DashboardLayout role='admin'/>,
-        children: [
-            { index: true, element: <AdminDashboard /> },
-        ],
-    },
+   
     {
         path:'*',
         element: <NotFound />
