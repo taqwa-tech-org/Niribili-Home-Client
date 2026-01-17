@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom"; // নির্দেশনা অনুযায়ী react-router
 import StatsCard from "@/components/Dashboard/StatsCard";
-import MealCard from "@/components/Dashboard/MealCard";
+// import MealCard from "@/components/Dashboard/MealCard";
 import BillCard from "@/components/Dashboard/BillCard";
 import ResidentInfoCard from "@/components/Dashboard/ResidentInfoCard";
 
@@ -160,7 +160,7 @@ const UserDashboard = () => {
           </motion.div>
 
           {/* Today's Meals */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -181,7 +181,7 @@ const UserDashboard = () => {
               <MealCard type="lunch" price={80} time="দুপুর ১২:৩০ - ২:৩০" isOrdered={true} />
               <MealCard type="dinner" price={80} time="রাত ৭:৩০ - ৯:৩০" isOrdered={false} />
             </div>
-          </motion.div>
+          </motion.div> */}
         </div>
 
         {/* Right Column - Resident Profile & Docs */}
