@@ -5,7 +5,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "@/Context/AuthContext";
-// import { useAuth } from "@/context/AuthContext";
+
+
 
 const AuthComponent: React.FC = () => {
   const { login } = useAuth(); // ✅ CONTEXT
@@ -39,8 +40,13 @@ const AuthComponent: React.FC = () => {
             password,
           }
         );
-
-        await login(res.data.accessToken); // ✅ CONTEXT LOGIN
+      const token = res.data.data.accessToken
+      if(isLogin){
+        localStorage.setItem("real Token", token)
+        console.log(res.data)
+      }
+       
+      await login(res.data.data.accessToken); // ✅ CONTEXT LOGIN
         toast.success("লগইন সফল হয়েছে 🎉");
         navigate("/");
       } else {
@@ -67,7 +73,7 @@ const AuthComponent: React.FC = () => {
       setLoading(false);
     }
   };
-
+   
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md bg-card rounded-xl shadow-lg border overflow-hidden">

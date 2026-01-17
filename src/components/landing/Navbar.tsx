@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
@@ -7,23 +7,43 @@ import { Button } from "../ui/button";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-  // Replace these with actual auth logic
-  const [isLoggedIn, setIsLoggedIn] = useState(); 
-  const [userImage, setUserImage] = useState("/default-avatar.png"); // empty string if no image
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userImage, setUserImage] = useState("/default-avatar.png");
   const [userName, setUserName] = useState("");
+
+  // Check for token on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("real Token");
+    if (token) {
+      setIsLoggedIn(true);
+      // You can also fetch user data here if needed
+      const storedUserName = localStorage.getItem("userName");
+      const storedUserImage = localStorage.getItem("userImage");
+      if (storedUserName) setUserName(storedUserName);
+      if (storedUserImage) setUserImage(storedUserImage);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   const navItems = [
     { name: "হোম", href: "/" },
     { name: "সুবিধাসমূহ", href: "#features" },
     { name: "নিয়মাবলী", href: "#rules" },
     { name: "যোগাযোগ", href: "#contact" },
-    {name: "ড্যাশবোর্ড" , href: "/user-dashboard"}
+    { name: "ড্যাশবোর্ড", href: "/user-dashboard" }
   ];
 
   const handleLogout = () => {
-    // TODO: Add your logout logic
+    // Remove token from localStorage
+    localStorage.removeItem("real Token");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userImage");
     
+    setIsLoggedIn(false);
+    setUserName("");
+    setUserImage("/default-avatar.png");
     setIsProfileOpen(false);
     setIsOpen(false);
   };
