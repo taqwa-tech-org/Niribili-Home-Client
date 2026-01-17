@@ -5,11 +5,12 @@ import Index from "@/pages";
 import NotFound from "@/pages/NotFound";
 import UserDashboard from "@/pages/UserDashboard";
 import { createBrowserRouter } from "react-router-dom";
-// import Usermeal from "@/pages/user/usermeal"
-// import MealCard from "@/components/Dashboard/MealCard";
-// import BillCard from "@/components/Dashboard/BillCard";
 import Billing from "@/components/Dashboard/Billing";
-import Meals from "@/components/Dashboard/Meals"
+import MealCard from "@/components/Dashboard/MealCard"
+import UserProfileComponent from "@/components/Dashboard/UserProfileComponenet";
+import Notification from "@/components/Dashboard/Notification"
+
+
 
 const appRoutes = createBrowserRouter([
   {
@@ -30,9 +31,11 @@ const appRoutes = createBrowserRouter([
       { index: true, element: <UserDashboard /> },
       {
         path: "/user-dashboard/meals",
-        element: <Meals />,
+        element: <MealCard />,
       },
       { path: "/user-dashboard/billing", element: <Billing /> },
+      {path: "/user-dashboard/profile", element: <UserProfileComponent/>},
+      {path: "/user-dashboard/notifications", element : <Notification/>}
     ],
   },
   {
