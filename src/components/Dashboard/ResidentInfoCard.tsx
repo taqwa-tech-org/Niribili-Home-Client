@@ -70,7 +70,7 @@ const ResidentInfoCard = ({
 
         <div className="border-t border-border pt-4">
           <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-            থাকার তথ্য
+            থাকার তথ্য 
           </h4>
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center p-3 rounded-xl bg-secondary">

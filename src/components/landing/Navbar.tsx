@@ -17,10 +17,10 @@ const Navbar = () => {
     if (token) {
       setIsLoggedIn(true);
       // You can also fetch user data here if needed
-      const storedUserName = localStorage.getItem("userName");
-      const storedUserImage = localStorage.getItem("userImage");
-      if (storedUserName) setUserName(storedUserName);
-      if (storedUserImage) setUserImage(storedUserImage);
+      // const storedUserName = localStorage.getItem("userName");
+      // const storedUserImage = localStorage.getItem("userImage");
+      // if (storedUserName) setUserName(storedUserName);
+      // if (storedUserImage) setUserImage(storedUserImage);
     } else {
       setIsLoggedIn(false);
     }
@@ -38,8 +38,8 @@ const Navbar = () => {
     // Remove token from localStorage
     localStorage.removeItem("real Token");
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userImage");
+    // localStorage.removeItem("userName");
+    // localStorage.removeItem("userImage");
     
     setIsLoggedIn(false);
     setUserName("");

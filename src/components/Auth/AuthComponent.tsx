@@ -4,13 +4,8 @@ import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useAuth } from "@/Context/AuthContext";
-
-
 
 const AuthComponent: React.FC = () => {
-  const { login } = useAuth(); // ✅ CONTEXT
-
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -38,42 +33,38 @@ const AuthComponent: React.FC = () => {
           {
             email,
             password,
-          }
+          },
         );
-      const token = res.data.data.accessToken
-      if(isLogin){
-        localStorage.setItem("real Token", token)
-        console.log(res.data)
-      }
-       
-      await login(res.data.data.accessToken); // ✅ CONTEXT LOGIN
+        const token = res.data.data.accessToken;
+        if (isLogin) {
+          localStorage.setItem("real Token", token);
+          console.log(res.data);
+        }
+
+        // ✅ CONTEXT LOGIN
         toast.success("লগইন সফল হয়েছে 🎉");
         navigate("/");
       } else {
         // ✅ REGISTER
-        await axios.post(
-          "http://localhost:8080/api/v1/user/register",
-          {
-            name,
-            phone,
-            email,
-            password,
-          }
-        );
+        await axios.post("http://localhost:8080/api/v1/user/register", {
+          name,
+          phone,
+          email,
+          password,
+        });
 
         toast.success("রেজিস্ট্রেশন সফল হয়েছে 🎉");
         navigate("/login");
       }
     } catch (err) {
-      const message =
-        err.response?.data?.message || "কিছু একটা সমস্যা হয়েছে";
+      const message = err.response?.data?.message || "কিছু একটা সমস্যা হয়েছে";
       setError(message);
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
-   
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md bg-card rounded-xl shadow-lg border overflow-hidden">
@@ -194,8 +185,8 @@ const AuthComponent: React.FC = () => {
                   {loading
                     ? "অপেক্ষা করুন..."
                     : isLogin
-                    ? "লগইন করুন"
-                    : "রেজিস্ট্রেশন করুন"}
+                      ? "লগইন করুন"
+                      : "রেজিস্ট্রেশন করুন"}
                 </button>
               </form>
             </motion.div>

@@ -7,7 +7,6 @@ import {
   CreditCard,
   User,
   Bell,
-  Settings,
   LogOut,
   Menu,
   X,

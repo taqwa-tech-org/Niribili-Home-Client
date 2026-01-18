@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom"; // নির্দেশনা অনুযায়ী react-router
 import StatsCard from "@/components/Dashboard/StatsCard";
-// import MealCard from "@/components/Dashboard/MealCard";
+import MealCard from "@/components/Dashboard/MealCard";
 import BillCard from "@/components/Dashboard/BillCard";
 import ResidentInfoCard from "@/components/Dashboard/ResidentInfoCard";
 
@@ -121,6 +121,9 @@ const UserDashboard = () => {
                <ReceiptIcon className="w-24 h-24 text-primary/5 absolute -right-4 -top-4 rotate-12" />
             </div>
 
+           
+
+          
             <div className="flex items-center justify-between mb-8 relative z-10">
               <div>
                 <h2 className="font-display text-xl font-bold flex items-center gap-2">
@@ -160,28 +163,7 @@ const UserDashboard = () => {
           </motion.div>
 
           {/* Today's Meals */}
-          {/* <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-card rounded-3xl border border-border p-6 md:p-8"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="font-display text-xl font-bold">আজকের খাবার মেনু</h2>
-                <p className="text-sm text-muted-foreground">অর্ডার লক হওয়ার সময়: রাত ১০:০০ টা</p>
-              </div>
-              <Link to="/user-dashboard/meals" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
-                সব দেখুন <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <MealCard type="breakfast" price={50} time="সকাল ৭:০০ - ৯:০০" isOrdered={true} />
-              <MealCard type="lunch" price={80} time="দুপুর ১২:৩০ - ২:৩০" isOrdered={true} />
-              <MealCard type="dinner" price={80} time="রাত ৭:৩০ - ৯:৩০" isOrdered={false} />
-            </div>
-          </motion.div> */}
+          <MealCard/>
         </div>
 
         {/* Right Column - Resident Profile & Docs */}

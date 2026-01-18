@@ -5,9 +5,7 @@ import Index from "@/pages";
 import UserBilling from "@/pages/Billing";
 import NotFound from "@/pages/NotFound";
 import UserDashboard from "@/pages/UserDashboard";
-
 import { createBrowserRouter } from "react-router-dom";
-import Billing from "@/components/Dashboard/Billing";
 import MealCard from "@/components/Dashboard/MealCard"
 import UserProfileComponent from "@/components/Dashboard/UserProfileComponenet";
 import Notification from "@/components/Dashboard/Notification"
