@@ -127,7 +127,7 @@ const UserProfileComponent: React.FC = () => {
 
       // Check if profile has editable data
       const hasData = Object.values(data).some(
-        (val) => val && val.length > 0 && val !== "N/A"
+        (val) => typeof val === "string" && val.length > 0 && val !== "N/A"
       );
 
       if (hasData) {
@@ -201,7 +201,7 @@ const UserProfileComponent: React.FC = () => {
 
       // Validate that at least some fields are filled
       const hasData = Object.values(formData).some(
-        (val) => val && val.length > 0
+        (val) => typeof val === "string" && val.length > 0
       );
 
       if (!hasData) {
@@ -246,7 +246,7 @@ const UserProfileComponent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br  bg-secondary/50 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
@@ -373,7 +373,7 @@ const UserProfileComponent: React.FC = () => {
                   field="nid"
                   value={formData.nid}
                   onChange={handleInputChange}
-                  placeholder="১৯৯৮१२३४५६७८९०१२३"
+                  placeholder="১৯৯৮"
                 />
                 <ProfileEditField
                   label="অভিভাবকের নাম"
