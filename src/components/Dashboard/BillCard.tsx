@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Calendar } from "lucide-react";
 
@@ -35,6 +36,11 @@ const BillCard = ({
   };
 
   const config = statusConfig[status];
+
+
+ 
+
+
 
   return (
     <motion.div

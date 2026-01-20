@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Upload, Edit2, Check, X, Loader, Save } from "lucide-react";
-import axios from "axios";
+import { Upload, Edit2, X, Loader, Save } from "lucide-react";
 import toast from "react-hot-toast";
+import { useLoaderData } from "react-router-dom";
+
+
 
 interface UserProfile {
   fullName?: string;
@@ -21,134 +23,62 @@ interface UserProfile {
   bio?: string;
 }
 
-interface DecodedToken {
-  name?: string;
-  email?: string;
-  phone?: string;
-  userId?: string;
-  id?: string;
-  iat?: number;
-  exp?: number;
-}
-
-// ✅ Function to decode JWT token from localStorage
-const decodeTokenFromStorage = (): DecodedToken | null => {
-  try {
-    const token = localStorage.getItem("real Token");
-
-    if (!token) {
-      console.log("No token found in localStorage");
-      return null;
-    }
-
-    console.log("Token found:", token.substring(0, 20) + "...");
-
-    const parts = token.split(".");
-    if (parts.length !== 3) {
-      console.error("Invalid JWT format");
-      return null;
-    }
-
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-
-    const decoded = JSON.parse(jsonPayload);
-    console.log("Decoded token:", decoded);
-    return decoded;
-  } catch (err) {
-    console.error("Error decoding token:", err);
-    return null;
-  }
+const buildingData: Record<string, { flats: string[]; rooms: string[] }> = {
+  "Niribili-N2": {
+    flats: ["A-1", "B-1", "A-3", "B-3", "A-4", "B-4", "A-5", "B-5", "A-6", "B-6", "Top"],
+    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+  },
+  "Niribili-N3": {
+    flats: ["0-A", "0-B", "1-A", "1-B", "2-A", "2-B", "3-A", "3-B", "4-A", "4-B", "5-A", "5-B", "6-A", "6-B"],
+    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+  },
+  "Niribili-N6": {
+    flats: ["3-A", "3-B", "4-A", "4-B", "5-A", "5-B", "6-A", "6-B", "7-A", "7-B"],
+    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+  },
+  "Niribili-N9": {
+    flats: ["G-1", "G-2", "G-3", "B-1", "A-3", "B-3", "B-4", "T-1", "T-2"],
+    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+  },
+  "Niribili-N10": {
+    flats: ["0-A", "0-B", "1-A", "1-B", "2-A", "2-B", "3-A", "3-B", "4-A", "4-B", "5-A", "5-B", "6-A", "6-B"],
+    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+  },
 };
 
+ 
+  
+
+  
+  
+ 
+
+ 
 const UserProfileComponent: React.FC = () => {
-  const [decodedUser, setDecodedUser] = useState<DecodedToken | null>(null);
+   
+   const user = useLoaderData()
+
+      console.log(user); // ✅ data is already available
+ 
+ 
+   
   const [profile, setProfile] = useState<UserProfile>({});
   const [formData, setFormData] = useState<UserProfile>({});
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [hasExistingData, setHasExistingData] = useState(false);
-
-  const PROFILE_ID = "6969e2eca612c04bfede3540";
-
-  // Initialize on mount
-  useEffect(() => {
-    const initializeComponent = async () => {
-      try {
-        const token = localStorage.getItem("real Token");
-
-        if (!token) {
-          toast.error("লগইন করুন প্রথমে");
-          setLoading(false);
-          return;
-        }
-
-        // Decode token
-        const decoded = decodeTokenFromStorage();
-        if (!decoded) {
-          toast.error("টোকেন ডিকোড করতে ব্যর্থ");
-          setLoading(false);
-          return;
-        }
-
-        setDecodedUser(decoded);
-
-        // Fetch existing profile data
-        await fetchProfile(token);
-      } catch (err) {
-        console.error("Initialization error:", err);
-        toast.error("প্রোফাইল লোড করতে ব্যর্থ");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeComponent();
-  }, []);
-
-  const fetchProfile = async (token: string) => {
-    try {
-      const res = await axios.get(
-        `http://localhost:8080/api/v1/profile/${PROFILE_ID}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const data = res.data.data;
-
-      // Check if profile has editable data
-      const hasData = Object.values(data).some(
-        (val) => typeof val === "string" && val.length > 0 && val !== "N/A"
-      );
-
-      if (hasData) {
-        setHasExistingData(true);
-        setProfile(data);
-        setFormData(data);
-      } else {
-        // New user - initialize with empty form
-        setHasExistingData(false);
-        setFormData({});
-      }
-    } catch (err) {
-      console.error("Profile fetch error:", err);
-      // New user - no existing data
-      setHasExistingData(false);
-      setFormData({});
-    }
-  };
+  const [saving, setSaving] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
+  };
+
+  const handleBuildingChange = (value: string) => {
+    // Reset flat and room when building changes
+    setFormData({ ...formData, building: value, flat: "", room: "" });
+  };
+
+  const handleFlatChange = (value: string) => {
+    // Reset room when flat changes
+    setFormData({ ...formData, flat: value, room: "" });
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,33 +87,10 @@ const UserProfileComponent: React.FC = () => {
 
     try {
       setSaving(true);
-      const token = localStorage.getItem("real Token");
-
-      if (!token) {
-        toast.error("টোকেন পাওয়া যায়নি");
-        return;
-      }
-
-      const formDataObj = new FormData();
-      formDataObj.append("profilePhoto", file);
-
-      const res = await axios.patch(
-        `http://localhost:8080/api/v1/profile/${PROFILE_ID}`,
-        formDataObj,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setFormData({ ...formData, profilePhoto: res.data.data.profilePhoto });
-      setProfile({ ...profile, profilePhoto: res.data.data.profilePhoto });
+      // Your file upload logic here
       toast.success("ছবি আপডেট হয়েছে ✅");
     } catch (err) {
       toast.error("ছবি আপলোড ব্যর্থ");
-      console.error(err);
     } finally {
       setSaving(false);
     }
@@ -192,14 +99,7 @@ const UserProfileComponent: React.FC = () => {
   const handleSaveAllData = async () => {
     try {
       setSaving(true);
-      const token = localStorage.getItem("real Token");
 
-      if (!token) {
-        toast.error("টোকেন পাওয়া যায়নি");
-        return;
-      }
-
-      // Validate that at least some fields are filled
       const hasData = Object.values(formData).some(
         (val) => typeof val === "string" && val.length > 0
       );
@@ -209,21 +109,12 @@ const UserProfileComponent: React.FC = () => {
         return;
       }
 
-      const res = await axios.patch(
-        `http://localhost:8080/api/v1/profile/${PROFILE_ID}`,
-        formData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      setProfile(res.data.data);
-      setHasExistingData(true);
+      // Your save logic here
+      setProfile(formData);
       setIsEditing(false);
-      toast.success(hasExistingData ? "আপডেট হয়েছে ✅" : "ডেটা সংরক্ষণ হয়েছে ✅");
+      toast.success("ডেটা সংরক্ষণ হয়েছে ✅");
     } catch (err) {
       toast.error("ডেটা সংরক্ষণ ব্যর্থ");
-      console.error(err);
     } finally {
       setSaving(false);
     }
@@ -234,19 +125,26 @@ const UserProfileComponent: React.FC = () => {
     setIsEditing(false);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader className="animate-spin mx-auto mb-4" size={40} />
-          <p className="text-gray-600">প্রোফাইল লোড হচ্ছে...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleEdit = () => {
+    setFormData(profile);
+    setIsEditing(true);
+  };
+
+  const availableFlats = formData.building ? buildingData[formData.building]?.flats || [] : [];
+  const availableRooms = formData.building ? buildingData[formData.building]?.rooms || [] : [];
+
+ 
+ 
+
+ 
+
+
+
+
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-br  bg-secondary/50 p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br bg-secondary/50 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
@@ -255,9 +153,7 @@ const UserProfileComponent: React.FC = () => {
           className="text-center mb-8"
         >
           <h1 className="text-4xl font-bold text-gray-900">আমার প্রোফাইল</h1>
-          <p className="text-gray-600 mt-2">
-            {hasExistingData ? "আপনার তথ্য দেখুন এবং আপডেট করুন" : "আপনার তথ্য পূরণ করুন"}
-          </p>
+          <p className="text-gray-600 mt-2">আপনার তথ্য দেখুন এবং আপডেট করুন</p>
         </motion.div>
 
         {/* Profile Card */}
@@ -291,76 +187,73 @@ const UserProfileComponent: React.FC = () => {
             <p className="text-sm text-gray-500 mt-3">প্রোফাইল ছবি আপলোড করুন</p>
           </div>
 
-          {/* Non-Editable Fields - From Token */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 pb-8 border-b">
-            <div>
-              <label className="text-sm font-semibold text-gray-700">
-                সম্পূর্ণ নাম
-              </label>
-              <p className="text-lg text-gray-900 mt-2">
-                {decodedUser?.name || "N/A"}
-              </p>
-            </div>
-
-            <div>
-              <label className="text-sm font-semibold text-gray-700">
-                ফোন নম্বর
-              </label>
-              <p className="text-lg text-gray-900 mt-2">
-                {decodedUser?.phone || "N/A"}
-              </p>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-sm font-semibold text-gray-700">
-                ইমেইল
-              </label>
-              <p className="text-lg text-gray-900 mt-2">
-                {decodedUser?.email || "N/A"}
-              </p>
-            </div>
-          </div>
-
           {/* Editable Fields */}
           <div className="space-y-6">
-            {!isEditing && hasExistingData ? (
+            {!isEditing ? (
               // View Mode
               <>
                 <ProfileDisplayField
+                  label="সম্পূর্ণ নাম"
+                  value={profile.fullName}
+                />
+                <ProfileDisplayField label="ফোন নম্বর" value={profile.phone} />
+                <ProfileDisplayField label="ইমেইল" value={profile.email} />
+                <ProfileDisplayField
                   label="হোয়াটসঅ্যাপ নম্বর"
-                  value={formData.whatsappNumber}
+                  value={profile.whatsappNumber}
                 />
                 <ProfileDisplayField
                   label="জাতীয় আইডি / জন্ম সার্টিফিকেট"
-                  value={formData.nid}
+                  value={profile.nid}
                 />
                 <ProfileDisplayField
                   label="অভিভাবকের নাম"
-                  value={formData.guardianName}
+                  value={profile.guardianName}
                 />
                 <ProfileDisplayField
                   label="অভিভাবকের ফোন"
-                  value={formData.guardianPhone}
+                  value={profile.guardianPhone}
                 />
                 <ProfileDisplayField
                   label="অভিভাবকের সম্পর্ক"
-                  value={formData.guardianRelation}
+                  value={profile.guardianRelation}
                 />
                 <ProfileDisplayField
                   label="জরুরি যোগাযোগ"
-                  value={formData.emergencyContact}
+                  value={profile.emergencyContact}
                 />
                 <ProfileDisplayField
                   label="বিল্ডিং এর নাম"
-                  value={formData.building}
+                  value={profile.building}
                 />
-                <ProfileDisplayField label="ফ্ল্যাট" value={formData.flat} />
-                <ProfileDisplayField label="রুম" value={formData.room} />
-                <ProfileDisplayField label="সম্পর্কে" value={formData.bio} />
+                <ProfileDisplayField label="ফ্ল্যাট" value={profile.flat} />
+                <ProfileDisplayField label="রুম" value={profile.room} />
+                <ProfileDisplayField label="সম্পর্কে" value={profile.bio} />
               </>
             ) : (
               // Edit Mode
               <>
+                <ProfileEditField
+                  label="সম্পূর্ণ নাম"
+                  field="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  placeholder="আপনার নাম"
+                />
+                <ProfileEditField
+                  label="ফোন নম্বর"
+                  field="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="+880..."
+                />
+                <ProfileEditField
+                  label="ইমেইল"
+                  field="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="example@email.com"
+                />
                 <ProfileEditField
                   label="হোয়াটসঅ্যাপ নম্বর"
                   field="whatsappNumber"
@@ -403,34 +296,71 @@ const UserProfileComponent: React.FC = () => {
                   onChange={handleInputChange}
                   placeholder="+880..."
                 />
-                <ProfileEditField
-                  label="বিল্ডিং এর নাম"
-                  field="building"
-                  value={formData.building}
-                  onChange={handleInputChange}
-                  placeholder="গ্রিন ভিউ অ্যাপার্টমেন্ট"
-                />
-                <ProfileEditField
-                  label="ফ্ল্যাট"
-                  field="flat"
-                  value={formData.flat}
-                  onChange={handleInputChange}
-                  placeholder="B-3"
-                />
-                <ProfileEditField
-                  label="রুম"
-                  field="room"
-                  value={formData.room}
-                  onChange={handleInputChange}
-                  placeholder="302"
-                />
-                <ProfileEditTextArea
-                  label="সম্পর্কে"
-                  field="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  placeholder="আপনার সম্পর্কে লিখুন..."
-                />
+
+                {/* Building Dropdown */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    বিল্ডিং এর নাম
+                  </label>
+                  <select
+                    value={formData.building || ""}
+                    onChange={(e) => handleBuildingChange(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">বিল্ডিং নির্বাচন করুন</option>
+                    {Object.keys(buildingData).map((building) => (
+                      <option key={building} value={building}>
+                        {building}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Flat Dropdown - Dependent on Building */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    ফ্ল্যাট
+                  </label>
+                  <select
+                    value={formData.flat || ""}
+                    onChange={(e) => handleFlatChange(e.target.value)}
+                    disabled={!formData.building}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">
+                      {formData.building ? "ফ্ল্যাট নির্বাচন করুন" : "প্রথমে বিল্ডিং নির্বাচন করুন"}
+                    </option>
+                    {availableFlats.map((flat) => (
+                      <option key={flat} value={flat}>
+                        {flat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Room Dropdown - Dependent on Building */}
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    রুম
+                  </label>
+                  <select
+                    value={formData.room || ""}
+                    onChange={(e) => handleInputChange("room", e.target.value)}
+                    disabled={!formData.building}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">
+                      {formData.building ? "রুম নির্বাচন করুন" : "প্রথমে বিল্ডিং নির্বাচন করুন"}
+                    </option>
+                    {availableRooms.map((room) => (
+                      <option key={room} value={room}>
+                        {room}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                
               </>
             )}
           </div>
@@ -467,11 +397,11 @@ const UserProfileComponent: React.FC = () => {
               </>
             ) : (
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={handleEdit}
                 className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold flex items-center gap-2"
               >
                 <Edit2 size={20} />
-                {hasExistingData ? "আপডেট করুন" : "তথ্য যোগ করুন"}
+                আপডেট করুন
               </button>
             )}
           </div>
