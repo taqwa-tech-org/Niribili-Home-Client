@@ -37,8 +37,8 @@ const AuthComponent: React.FC = () => {
         );
         const token = res.data.data.accessToken;
         if (isLogin) {
-          localStorage.setItem("real Token", token);
-          console.log(res.data);
+          localStorage.setItem("accessToken", token);
+          console.log(res.data.data.refreshToken)
         }
 
         // ✅ CONTEXT LOGIN
