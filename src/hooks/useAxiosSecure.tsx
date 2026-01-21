@@ -31,7 +31,7 @@ const createAxiosSecure = (): AxiosInstance => {
   axiosSecure.interceptors.request.use((config) => {
     const token = localStorage.getItem("accessToken");
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `${token}`;
     }
     return config;
   });
@@ -63,7 +63,7 @@ const createAxiosSecure = (): AxiosInstance => {
           localStorage.setItem("refreshToken", res.data.data.refreshToken);
 
           originalRequest.headers!.Authorization =
-            `Bearer ${res.data.data.accessToken}`;
+            `${res.data.data.accessToken}`;
 
           return axiosSecure(originalRequest);
         } catch (err) {
