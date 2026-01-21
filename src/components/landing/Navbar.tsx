@@ -13,7 +13,7 @@ const Navbar = () => {
 
   // Check for token on component mount
   useEffect(() => {
-    const token = localStorage.getItem("real Token");
+    const token = localStorage.getItem("accessToken");
     if (token) {
       setIsLoggedIn(true);
       // You can also fetch user data here if needed
@@ -36,8 +36,8 @@ const Navbar = () => {
 
   const handleLogout = () => {
     // Remove token from localStorage
-    localStorage.removeItem("real Token");
     localStorage.removeItem("accessToken");
+    // localStorage.removeItem("accessToken");
     // localStorage.removeItem("userName");
     // localStorage.removeItem("userImage");
     
