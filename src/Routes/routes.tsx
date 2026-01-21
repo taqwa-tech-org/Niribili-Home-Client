@@ -9,6 +9,7 @@ import { createBrowserRouter } from "react-router-dom";
 import MealCard from "@/components/Dashboard/MealCard"
 import UserProfileComponent from "@/components/Dashboard/UserProfileComponenet";
 import Notification from "@/components/Dashboard/Notification"
+import { userProfileLoader } from "@/Loader/userProfile.loader";
 
 
 const appRoutes = createBrowserRouter([
@@ -30,7 +31,14 @@ const appRoutes = createBrowserRouter([
       { index: true, element: <UserDashboard /> },
       { path: "/user-dashboard/meals", element: <MealCard/> },
       { path: "/user-dashboard/billing", element: <UserBilling /> },
-      { path: "/user-dashboard/profile", element: <UserProfileComponent/> },
+
+     {
+  path:  "/user-dashboard/profile",
+  element: <UserProfileComponent/>,
+  loader: userProfileLoader
+},
+
+
       { path: "/user-dashboard/notifications", element: <Notification/> }
 
     ],
