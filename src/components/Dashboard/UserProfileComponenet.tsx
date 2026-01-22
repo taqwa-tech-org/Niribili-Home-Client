@@ -1,67 +1,65 @@
-import React, { useState } from "react";
+import React, { useState , useContext} from "react";
 import { motion } from "framer-motion";
 import { Upload, Edit2, X, Loader, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { useLoaderData } from "react-router-dom";
-
-
+import useAxiosSecure from "@/hooks/useAxiosSecure";
+import { UserContext } from "@/Context/UserContextProvider";
 
 interface UserProfile {
-  fullName?: string;
-  phone?: string;
-  email?: string;
   profilePhoto?: string;
-  whatsappNumber?: string;
-  nid?: string;
+  nidPhoto?: string;
   guardianName?: string;
   guardianPhone?: string;
   guardianRelation?: string;
   emergencyContact?: string;
-  building?: string;
-  flat?: string;
+  buildingId?: string;
+  flatId?: string;
   room?: string;
+  whatsappNumber?: string;
   bio?: string;
+}
+
+interface LoaderData {
+  data: {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    [key: string]: string | undefined;
+  };
 }
 
 const buildingData: Record<string, { flats: string[]; rooms: string[] }> = {
   "Niribili-N2": {
-    flats: ["A-1", "B-1", "A-3", "B-3", "A-4", "B-4", "A-5", "B-5", "A-6", "B-6", "Top"],
-    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+    flats: ["A-1", "B-1", "A-3", "B-3", "A-4", "B-4", "A-5", "B-5", "A-6", "B-6"],
+    rooms: ["Master Bed Room", "Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
   },
   "Niribili-N3": {
     flats: ["0-A", "0-B", "1-A", "1-B", "2-A", "2-B", "3-A", "3-B", "4-A", "4-B", "5-A", "5-B", "6-A", "6-B"],
-    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+    rooms: ["Master Bed Room", "Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
   },
   "Niribili-N6": {
     flats: ["3-A", "3-B", "4-A", "4-B", "5-A", "5-B", "6-A", "6-B", "7-A", "7-B"],
-    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+    rooms: ["Master Bed Room", "Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
   },
   "Niribili-N9": {
     flats: ["G-1", "G-2", "G-3", "B-1", "A-3", "B-3", "B-4", "T-1", "T-2"],
-    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+    rooms: ["Master Bed Room", "Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
   },
   "Niribili-N10": {
     flats: ["0-A", "0-B", "1-A", "1-B", "2-A", "2-B", "3-A", "3-B", "4-A", "4-B", "5-A", "5-B", "6-A", "6-B"],
-    rooms: ["Master Bed Room","Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
+    rooms: ["Master Bed Room", "Semi master Bed Room", "Normal Bed Room", "Special Bed Room", "Extra Room 1", "Extra Room 2"],
   },
 };
 
- 
-  
-
-  
-  
- 
-
- 
 const UserProfileComponent: React.FC = () => {
-   
-   const user = useLoaderData()
+  const user = useLoaderData() as LoaderData;
+  // const user  = useContext(UserContext)
+  const axiosSecure = useAxiosSecure();
 
-      console.log(user); // ✅ data is already available
- 
- 
-   
+  console.log(user); // ✅ data is already available
+
   const [profile, setProfile] = useState<UserProfile>({});
   const [formData, setFormData] = useState<UserProfile>({});
   const [isEditing, setIsEditing] = useState(false);
@@ -73,12 +71,12 @@ const UserProfileComponent: React.FC = () => {
 
   const handleBuildingChange = (value: string) => {
     // Reset flat and room when building changes
-    setFormData({ ...formData, building: value, flat: "", room: "" });
+    setFormData({ ...formData, buildingId: value, flatId: "", room: "" });
   };
 
   const handleFlatChange = (value: string) => {
     // Reset room when flat changes
-    setFormData({ ...formData, flat: value, room: "" });
+    setFormData({ ...formData, flatId: value, room: "" });
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,8 +85,23 @@ const UserProfileComponent: React.FC = () => {
 
     try {
       setSaving(true);
-      // Your file upload logic here
-      toast.success("ছবি আপডেট হয়েছে ✅");
+      // Your file upload logic here for profile photo
+      toast.success("প্রোফাইল ছবি আপডেট হয়েছে ✅");
+    } catch (err) {
+      toast.error("ছবি আপলোড ব্যর্থ");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleNidPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setSaving(true);
+      // Your file upload logic here for NID photo
+      toast.success("NID/জন্ম সনদ ছবি আপডেট হয়েছে ✅");
     } catch (err) {
       toast.error("ছবি আপলোড ব্যর্থ");
     } finally {
@@ -109,11 +122,19 @@ const UserProfileComponent: React.FC = () => {
         return;
       }
 
-      // Your save logic here
-      setProfile(formData);
-      setIsEditing(false);
-      toast.success("ডেটা সংরক্ষণ হয়েছে ✅");
+      // Send PATCH request to update profile
+      const response = await axiosSecure.patch(
+        `/profile/${user.data._id}`,
+        formData
+      );
+
+      if (response.data) {
+        setProfile(formData);
+        setIsEditing(false);
+        toast.success("ডেটা সংরক্ষণ হয়েছে ✅");
+      }
     } catch (err) {
+      console.error(err);
       toast.error("ডেটা সংরক্ষণ ব্যর্থ");
     } finally {
       setSaving(false);
@@ -130,18 +151,8 @@ const UserProfileComponent: React.FC = () => {
     setIsEditing(true);
   };
 
-  const availableFlats = formData.building ? buildingData[formData.building]?.flats || [] : [];
-  const availableRooms = formData.building ? buildingData[formData.building]?.rooms || [] : [];
-
- 
- 
-
- 
-
-
-
-
-
+  const availableFlats = formData.buildingId ? buildingData[formData.buildingId]?.flats || [] : [];
+  const availableRooms = formData.buildingId ? buildingData[formData.buildingId]?.rooms || [] : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br bg-secondary/50 p-4 sm:p-8">
@@ -187,6 +198,40 @@ const UserProfileComponent: React.FC = () => {
             <p className="text-sm text-gray-500 mt-3">প্রোফাইল ছবি আপলোড করুন</p>
           </div>
 
+          {/* NID Photo Upload Section */}
+          <div className="mb-8 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  জাতীয় পরিচয়পত্র / জন্ম সনদ আপলোড করুন
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {formData.nidPhoto ? "ছবি আপলোড হয়েছে ✅" : "ছবি নির্বাচন করুন"}
+                </p>
+              </div>
+              <label className="px-6 py-3 bg-indigo-600 text-white rounded-lg cursor-pointer hover:bg-indigo-700 transition font-semibold flex items-center gap-2">
+                <Upload size={20} />
+                আপলোড করুন
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleNidPhotoUpload}
+                  className="hidden"
+                  disabled={saving}
+                />
+              </label>
+            </div>
+            {formData.nidPhoto && (
+              <div className="mt-4">
+                <img
+                  src={formData.nidPhoto}
+                  alt="NID"
+                  className="w-full max-w-md h-auto rounded-lg border-2 border-gray-300"
+                />
+              </div>
+            )}
+          </div>
+
           {/* Editable Fields */}
           <div className="space-y-6">
             {!isEditing ? (
@@ -194,17 +239,13 @@ const UserProfileComponent: React.FC = () => {
               <>
                 <ProfileDisplayField
                   label="সম্পূর্ণ নাম"
-                  value={profile.fullName}
+                  value={user.data.name}
                 />
-                <ProfileDisplayField label="ফোন নম্বর" value={profile.phone} />
-                <ProfileDisplayField label="ইমেইল" value={profile.email} />
+                <ProfileDisplayField label="ফোন নম্বর" value={user.data.phone} />
+                <ProfileDisplayField label="ইমেইল" value={user.data.email} />
                 <ProfileDisplayField
                   label="হোয়াটসঅ্যাপ নম্বর"
                   value={profile.whatsappNumber}
-                />
-                <ProfileDisplayField
-                  label="জাতীয় আইডি / জন্ম সার্টিফিকেট"
-                  value={profile.nid}
                 />
                 <ProfileDisplayField
                   label="অভিভাবকের নাম"
@@ -224,49 +265,27 @@ const UserProfileComponent: React.FC = () => {
                 />
                 <ProfileDisplayField
                   label="বিল্ডিং এর নাম"
-                  value={profile.building}
+                  value={profile.buildingId}
                 />
-                <ProfileDisplayField label="ফ্ল্যাট" value={profile.flat} />
+                <ProfileDisplayField label="ফ্ল্যাট" value={profile.flatId} />
                 <ProfileDisplayField label="রুম" value={profile.room} />
-                <ProfileDisplayField label="সম্পর্কে" value={profile.bio} />
+                <ProfileDisplayField label="নিজের সম্পর্কে বলুন" value={profile.bio} />
               </>
             ) : (
               // Edit Mode
               <>
-                <ProfileEditField
+                <ProfileDisplayField
                   label="সম্পূর্ণ নাম"
-                  field="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  placeholder="আপনার নাম"
+                  value={user.data.name}
                 />
-                <ProfileEditField
-                  label="ফোন নম্বর"
-                  field="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+880..."
-                />
-                <ProfileEditField
-                  label="ইমেইল"
-                  field="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="example@email.com"
-                />
+                <ProfileDisplayField label="ফোন নম্বর" value={user.data.phone} />
+                <ProfileDisplayField label="ইমেইল" value={user.data.email} />
                 <ProfileEditField
                   label="হোয়াটসঅ্যাপ নম্বর"
                   field="whatsappNumber"
                   value={formData.whatsappNumber}
                   onChange={handleInputChange}
                   placeholder="+880..."
-                />
-                <ProfileEditField
-                  label="জাতীয় আইডি / জন্ম সার্টিফিকেট"
-                  field="nid"
-                  value={formData.nid}
-                  onChange={handleInputChange}
-                  placeholder="১৯৯৮"
                 />
                 <ProfileEditField
                   label="অভিভাবকের নাম"
@@ -303,7 +322,7 @@ const UserProfileComponent: React.FC = () => {
                     বিল্ডিং এর নাম
                   </label>
                   <select
-                    value={formData.building || ""}
+                    value={formData.buildingId || ""}
                     onChange={(e) => handleBuildingChange(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
@@ -322,13 +341,13 @@ const UserProfileComponent: React.FC = () => {
                     ফ্ল্যাট
                   </label>
                   <select
-                    value={formData.flat || ""}
+                    value={formData.flatId || ""}
                     onChange={(e) => handleFlatChange(e.target.value)}
-                    disabled={!formData.building}
+                    disabled={!formData.buildingId}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
                     <option value="">
-                      {formData.building ? "ফ্ল্যাট নির্বাচন করুন" : "প্রথমে বিল্ডিং নির্বাচন করুন"}
+                      {formData.buildingId ? "ফ্ল্যাট নির্বাচন করুন" : "প্রথমে বিল্ডিং নির্বাচন করুন"}
                     </option>
                     {availableFlats.map((flat) => (
                       <option key={flat} value={flat}>
@@ -346,11 +365,11 @@ const UserProfileComponent: React.FC = () => {
                   <select
                     value={formData.room || ""}
                     onChange={(e) => handleInputChange("room", e.target.value)}
-                    disabled={!formData.building}
+                    disabled={!formData.buildingId}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
                     <option value="">
-                      {formData.building ? "রুম নির্বাচন করুন" : "প্রথমে বিল্ডিং নির্বাচন করুন"}
+                      {formData.buildingId ? "রুম নির্বাচন করুন" : "প্রথমে বিল্ডিং নির্বাচন করুন"}
                     </option>
                     {availableRooms.map((room) => (
                       <option key={room} value={room}>
@@ -360,7 +379,13 @@ const UserProfileComponent: React.FC = () => {
                   </select>
                 </div>
 
-                
+                <ProfileEditTextArea
+                  label="নিজের সম্পর্কে বলুন"
+                  field="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  placeholder="নিজের সম্পর্কে কিছু লিখুন..."
+                />
               </>
             )}
           </div>

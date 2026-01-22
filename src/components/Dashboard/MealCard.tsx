@@ -22,20 +22,7 @@ interface DayMeals {
 
 export default function MealOrderingSystem() {
   const [orders, setOrders] = useState<MealOrder[]>([
-    {
-      id: '1',
-      date: '2026-01-22',
-      mealType: 'lunch',
-      quantity: 2,
-      createdAt: new Date()
-    },
-    {
-      id: '2',
-      date: '2026-01-23',
-      mealType: 'dinner',
-      quantity: 1,
-      createdAt: new Date()
-    }
+   
   ]);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
