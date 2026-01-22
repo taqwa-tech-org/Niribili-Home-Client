@@ -341,8 +341,8 @@ export default function MealOrderingSystem() {
         <div className="w-full px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-gray-900">Meal Ordering</h1>
-              <p className="text-xs sm:text-base text-gray-600 mt-1">Plan your meals in advance</p>
+              <h1 className="text-xl sm:text-3xl font-bold text-gray-900">খাবার অর্ডার করুন </h1>
+              <p className="text-xs sm:text-base text-gray-600 mt-1">আগামীকালকের খাবার আজই অর্ডার করুন রাত ১০টার  মধ্যে </p>
             </div>
           </div>
         </div>
@@ -354,13 +354,13 @@ export default function MealOrderingSystem() {
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
               <div className="p-3 sm:p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between gap-2 sm:gap-4">
-                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">Your Orders</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">আপনার অর্ডার</h2>
                   <button
                     onClick={() => setCalendarOpen(true)}
                     className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors text-xs sm:text-base whitespace-nowrap"
                   >
                     <Plus className="w-4 h-4" />
-                    <span className="hidden sm:inline">Add Order</span>
+                    <span className="hidden sm:inline">অ্যাড করুন</span>
                     <span className="sm:hidden">Add</span>
                   </button>
                 </div>
@@ -369,8 +369,8 @@ export default function MealOrderingSystem() {
               {groupedOrders.length === 0 ? (
                 <div className="p-8 sm:p-12 text-center">
                   <Calendar className="w-10 sm:w-12 h-10 sm:h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 font-medium text-sm sm:text-base">No orders yet</p>
-                  <p className="text-gray-400 text-xs sm:text-sm mt-1">Click "Add" to place your first meal order</p>
+                  <p className="text-gray-500 font-medium text-sm sm:text-base">এখনও কোনও অর্ডার নেই।</p>
+                  <p className="text-gray-400 text-xs sm:text-sm mt-1">আপনার প্রথম খাবারের অর্ডার দিতে "অ্যাড করুন" এ ক্লিক করুন।</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -473,50 +473,44 @@ export default function MealOrderingSystem() {
                 )}
                 <div className="min-w-0">
                   <h3 className={`font-semibold text-xs sm:text-base ${isCutoffPassed ? 'text-red-900' : 'text-blue-900'}`}>
-                    {isCutoffPassed ? 'Editing Locked' : 'Editing Available'}
+                    {isCutoffPassed ? 'এখন আর পরিবর্তন করতে পারছেন না' : 'রাত ১০ টার আগ পর্যন্ত পরিবর্তন করতে পারবেন '}
                   </h3>
                   <p className={`text-xs sm:text-sm mt-1 ${isCutoffPassed ? 'text-red-700' : 'text-blue-700'}`}>
                     {isCutoffPassed
                       ? `Cutoff at ${cutoffTime}. Edit again at midnight.`
-                      : `Edit until ${cutoffTime}`}
+                      : `${cutoffTime}`}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 shadow-sm">
-              <h3 className="font-bold text-gray-900 mb-2 sm:mb-3 text-xs sm:text-base">Order Rules</h3>
+              <h3 className="font-bold text-gray-900 mb-2 sm:mb-3 text-xs sm:text-base">অর্ডারের নিয়ম</h3>
               <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-700">
                 <li className="flex gap-2">
                   <span className="font-semibold text-blue-600 flex-shrink-0">✓</span>
-                  <span>Order multiple meals per day</span>
+                  <span>প্রতিদিন একাধিক খাবার অর্ডার করুন</span>
+                </li>
+                
+                
+                <li className="flex gap-2">
+                  <span className="font-semibold text-blue-600 flex-shrink-0">✓</span>
+                  <span>অবস্থা: রাত ১০টার আগে অপেক্ষারত</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="font-semibold text-blue-600 flex-shrink-0">✓</span>
-                  <span>1 day advance</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="font-semibold text-blue-600 flex-shrink-0">✓</span>
-                  <span>Cutoff: <strong>10 PM</strong></span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="font-semibold text-blue-600 flex-shrink-0">✓</span>
-                  <span>Status: Pending before 10 PM</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="font-semibold text-blue-600 flex-shrink-0">✓</span>
-                  <span>Status: Confirmed after 10 PM</span>
+                  <span>অবস্থা: রাত ১০টার পরে অর্ডার নিশ্চিত হবে</span>
                 </li>
               </ul>
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 shadow-sm">
-              <p className="text-xs sm:text-sm text-gray-600">Current Time</p>
+              <p className="text-xs sm:text-sm text-gray-600">বর্তমান সময়</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
                 {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                Cutoff in {Math.max(0, 22 - new Date().getHours())}h {Math.max(0, 60 - new Date().getMinutes())}m
+                সময় বাকি {Math.max(0, 22 - new Date().getHours())}h {Math.max(0, 60 - new Date().getMinutes())}m
               </p>
             </div>
           </div>
