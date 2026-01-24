@@ -10,11 +10,13 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom"; // নির্দেশনা অনুযায়ী react-router
+import { Link, useLoaderData } from "react-router-dom"; // নির্দেশনা অনুযায়ী react-router
 import StatsCard from "@/components/Dashboard/StatsCard";
 import MealCard from "@/components/Dashboard/MealCard";
 import BillCard from "@/components/Dashboard/BillCard";
 import ResidentInfoCard from "@/components/Dashboard/ResidentInfoCard";
+import { useUser } from "@/Context/UserProvider";
+
 
 const UserDashboard = () => {
   const today = new Date().toLocaleDateString("bn-BD", {
@@ -37,6 +39,19 @@ const UserDashboard = () => {
     paymentStatus: "Pending" as const,
   };
 
+  interface LoaderData {
+  data: {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    [key: string]: string | undefined;
+  };
+}
+
+  const user  = useLoaderData() as LoaderData;
+  // console.log(user.data.name)
+
   return (
     <div className="py-5">
       {/* Welcome Header */}
@@ -52,7 +67,7 @@ const UserDashboard = () => {
             </span>
           </div>
           <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">
-            স্বাগতম, <span className="text-gradient">রহিম সাহেব!</span>
+            স্বাগতম, <span className="text-gradient">{user.data.name}</span>
           </h1>
           <p className="text-muted-foreground text-sm">{today}</p>
         </motion.div>
@@ -169,9 +184,9 @@ const UserDashboard = () => {
         {/* Right Column - Resident Profile & Docs */}
         <div className="space-y-6">
           <ResidentInfoCard
-            name="আব্দুর রহিম"
-            email="rahim@email.com"
-            phone="+৮৮০ ১৭১২-৩৪৫৬৭৮"
+            name={user.data.name}
+            email={user.data.email}
+            phone={user.data.phone}
             building="বিল্ডিং-এ (Niribili Home)"
             flat="ফ্ল্যাট: ৩-বি"
             room="রুম: ৩০২"

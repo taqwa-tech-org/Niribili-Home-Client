@@ -1,6 +1,6 @@
-import  { useState, useMemo } from 'react';
+import  { useState, useMemo , useEffect} from 'react';
 import { ChevronLeft, ChevronRight, Plus, Minus, AlertCircle, Lock, Calendar, X } from 'lucide-react';
-
+import { axiosSecure } from "@/hooks/useAxiosSecure";
 interface MealOrder {
   id: string;
   date: string;
@@ -24,6 +24,10 @@ export default function MealOrderingSystem() {
   const [orders, setOrders] = useState<MealOrder[]>([
    
   ]);
+  /* new code  */
+  const [autoSubmitTime, setAutoSubmitTime] = useState('22:00'); // testing এর জন্য এটা change করতে পারবেন
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 18));
@@ -200,11 +204,21 @@ export default function MealOrderingSystem() {
   const renderCalendar = () => {
     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+   
+
+
+
+
+
+/* Timer setup function step 4 */
+
+
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
         <div className="bg-white rounded-t-2xl sm:rounded-lg border border-gray-200 p-4 sm:p-6 shadow-xl w-full sm:w-full max-w-md max-h-[90vh] overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900">Select Date & Add Meals</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">তারিখ নির্বাচন করুন ও অর্ডার করুন</h2>
             <button
               onClick={() => setCalendarOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
@@ -268,6 +282,7 @@ export default function MealOrderingSystem() {
               );
             })}
           </div>
+          
 
           {selectedDate && (
             <>
@@ -335,6 +350,66 @@ export default function MealOrderingSystem() {
   const groupedOrders = groupOrdersByDate();
   const status = getStatusByTime();
 
+  /* auto submit function step 3*/
+
+   const submitOrdersToDatabase = async () => {
+  if (orders.length === 0 || isSubmitting) return;
+  
+  setIsSubmitting(true);
+  
+  try {
+    // Data format করুন
+    const orderData = orders.map(order => ({
+      date: order.date,
+      mealType: order.mealType,
+      quantity: order.quantity,
+      createdAt: order.createdAt
+    }));
+
+    // Database এ পাঠান
+    const response = await axiosSecure.post('/meals/order', {
+      orders: orderData,
+      submittedAt: new Date().toISOString()
+    });
+
+    console.log('Orders submitted successfully:', response.data);
+    
+    // Success হলে orders clear করুন (optional)
+    // setOrders([]);
+    
+  } catch (error) {
+    console.error('Error submitting orders:', error);
+    alert('অর্ডার submit করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
+
+
+/* new step 4 */
+
+
+  useEffect(() => {
+  const checkAndSubmit = () => {
+    const now = new Date();
+    const [hours, minutes] = autoSubmitTime.split(':').map(Number);
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    const submitTime = hours * 60 + minutes;
+
+    // যদি submit time হয়ে যায় এবং আগে submit না হয়ে থাকে
+    if (currentTime === submitTime && orders.length > 0) {
+      submitOrdersToDatabase();
+    }
+  };
+
+  // প্রতি মিনিটে check করুন
+  const interval = setInterval(checkAndSubmit, 60000); // 60 seconds
+
+  return () => clearInterval(interval);
+}, [orders, autoSubmitTime]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
@@ -355,7 +430,20 @@ export default function MealOrderingSystem() {
               <div className="p-3 sm:p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between gap-2 sm:gap-4">
                   <h2 className="text-lg sm:text-xl font-bold text-gray-900">আপনার অর্ডার</h2>
-                  <button
+                  
+                  
+
+                 {
+                  isCutoffPassed ? <button
+                    onClick={() => setCalendarOpen(true)}
+                     disabled
+                    className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium transition-colors text-xs sm:text-base whitespace-nowrap"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="hidden sm:inline">অ্যাড করুন</span>
+                    <span className="sm:hidden">Add</span>
+                  </button> :
+                   <button
                     onClick={() => setCalendarOpen(true)}
                     className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors text-xs sm:text-base whitespace-nowrap"
                   >
@@ -363,6 +451,9 @@ export default function MealOrderingSystem() {
                     <span className="hidden sm:inline">অ্যাড করুন</span>
                     <span className="sm:hidden">Add</span>
                   </button>
+                 }
+                  
+
                 </div>
               </div>
 
@@ -464,7 +555,7 @@ export default function MealOrderingSystem() {
           </div>
 
           <div className="space-y-4 w-full">
-            <div className={`${isCutoffPassed ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'} border rounded-lg p-3 sm:p-4`}>
+            {/* <div className={`${isCutoffPassed ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'} border rounded-lg p-3 sm:p-4`}>
               <div className="flex items-start gap-3">
                 {isCutoffPassed ? (
                   <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -482,7 +573,7 @@ export default function MealOrderingSystem() {
                   </p>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 shadow-sm">
               <h3 className="font-bold text-gray-900 mb-2 sm:mb-3 text-xs sm:text-base">অর্ডারের নিয়ম</h3>
@@ -509,9 +600,12 @@ export default function MealOrderingSystem() {
               <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">
                 {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
               </p>
-              <p className="text-xs text-gray-500 mt-2">
+              {
+                isCutoffPassed? ""  : <p className="text-xs text-gray-500 mt-2">
                 সময় বাকি {Math.max(0, 22 - new Date().getHours())}h {Math.max(0, 60 - new Date().getMinutes())}m
               </p>
+              }
+              
             </div>
           </div>
         </div>

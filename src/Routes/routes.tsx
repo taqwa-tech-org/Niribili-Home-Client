@@ -11,11 +11,12 @@ import UserProfileComponent from "@/components/Dashboard/UserProfileComponenet";
 import Notification from "@/components/Dashboard/Notification";
 import { userProfileLoader } from "@/Loader/userProfile.loader";
 import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
+import { usePageInView } from "framer-motion";
 
 const appRoutes = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <App/>,
     children: [
       { index: true, element: <Index /> },
       {
@@ -30,10 +31,13 @@ const appRoutes = createBrowserRouter([
     children: [
       {
         index: true,
+        loader: userProfileLoader,
         element: (
           <PrivateRoute>
-            <UserDashboard />
+            <UserDashboard />,
+          
           </PrivateRoute>
+
         ),
       },
       {

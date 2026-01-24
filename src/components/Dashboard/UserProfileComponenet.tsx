@@ -4,7 +4,7 @@ import { Upload, Edit2, X, Loader, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { useLoaderData } from "react-router-dom";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
-import { UserContext } from "@/Context/UserContextProvider";
+
 
 interface UserProfile {
   profilePhoto?: string;
@@ -58,7 +58,7 @@ const UserProfileComponent: React.FC = () => {
   // const user  = useContext(UserContext)
   const axiosSecure = useAxiosSecure();
 
-  console.log(user); // ✅ data is already available
+  // console.log(user.data._id); // ✅ data is already available
 
   const [profile, setProfile] = useState<UserProfile>({});
   const [formData, setFormData] = useState<UserProfile>({});
@@ -112,7 +112,7 @@ const UserProfileComponent: React.FC = () => {
   const handleSaveAllData = async () => {
     try {
       setSaving(true);
-
+      console.log(formData)
       const hasData = Object.values(formData).some(
         (val) => typeof val === "string" && val.length > 0
       );

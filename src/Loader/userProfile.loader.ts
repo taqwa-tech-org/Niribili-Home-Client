@@ -9,6 +9,5 @@ export const userProfileLoader = async () => {
   } catch (err){
     console.log("error detected" , err)
     // return redirect("/login");
-    
-  }
+   }
 };
