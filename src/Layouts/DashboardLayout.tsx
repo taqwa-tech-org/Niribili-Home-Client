@@ -6,7 +6,7 @@ import {
   UtensilsCrossed,
   CreditCard,
   User,
-  Bell,
+  // Bell,
   LogOut,
   Menu,
   X,
@@ -23,7 +23,7 @@ const userMenuItems = [
   { icon: UtensilsCrossed, label: "খাবার অর্ডার", href: "/user-dashboard/meals" },
   { icon: CreditCard, label: "বিলিং", href: "/user-dashboard/billing" },
   { icon: User, label: "প্রোফাইল", href: "/user-dashboard/profile" },
-  { icon: Bell, label: "নোটিফিকেশন", href: "/user-dashboard/notifications" },
+  // { icon: Bell, label: "নোটিফিকেশন", href: "/user-dashboard/notifications" },
 ];
 
 const DashboardLayout = () => {
@@ -162,11 +162,7 @@ const DashboardLayout = () => {
           </button>
 
           <div className="flex-1 flex items-center justify-end gap-3">
-            {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-destructive" />
-            </Button>
+            
 
             {/* Logout */}
             <Button variant="ghost" size="icon" asChild>

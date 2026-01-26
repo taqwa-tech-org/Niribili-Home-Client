@@ -540,3 +540,115 @@
 //     </div>
 //   );
 // }
+
+
+/* user context  */
+
+// import { axiosSecure } from '@/hooks/useAxiosSecure';
+// import React, {
+//   createContext,
+//   useContext,
+//   useState,
+//   useEffect,
+//   useCallback,
+//   ReactNode,
+// } from 'react';
+
+
+// import type {
+//   User,
+//   UserProfile,
+//   UserProfileResponse,
+// } from '@/Types/Type';
+
+
+// interface UserContextType {
+//   user: User | null;
+//   userProfile: UserProfile | null;
+//   loading: boolean;
+//   error: string | null;
+//   refetchUser: () => Promise<void>;
+//   refetchUserProfile: () => Promise<void>;
+// }
+
+
+// const UserContext = createContext<UserContextType | undefined>(undefined);
+
+
+// export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+//   const [user, setUser] = useState<User | null>(null);
+//   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+//   const [loading, setLoading] = useState<boolean>(false);
+//   const [error, setError] = useState<string | null>(null);
+
+
+//   const fetchUser = useCallback(async () => {
+//     try {
+//       setLoading(true);
+//       setError(null);
+
+//       const res = await axiosSecure.get('/user/me');
+//       setUser(res.data.data);
+//     } catch (err) {
+//       setError(err instanceof Error ? err.message : 'Failed to fetch user');
+//       setUser(null);
+//       console.error('Error fetching user:', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, []);
+
+//   const fetchUserProfile = useCallback(async () => {
+//     try {
+//       setLoading(true);
+//       setError(null);
+
+//       const res = await axiosSecure.get<UserProfileResponse>('/profile/userId');
+//       // console.log(res.data.data)
+//       setUserProfile(res.data.data);
+//     } catch (err) {
+//       setError(err instanceof Error ? err.message : 'Failed to fetch user profile');
+//       setUserProfile(null);
+//       console.error('Error fetching profile:', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, []);
+
+ 
+//   useEffect(() => {
+//     fetchUser();
+//   }, [fetchUser]);
+
+ 
+//   useEffect(() => {
+//     if (user?._id) {
+//       fetchUserProfile();
+//     }
+//   }, [user, fetchUserProfile]);
+
+
+//   return (
+//     <UserContext.Provider
+//       value={{
+//         user,
+//         userProfile,
+//         loading,
+//         error,
+//         refetchUser: fetchUser,
+//         refetchUserProfile: fetchUserProfile,
+//       }}
+//     >
+//       {children}
+//     </UserContext.Provider>
+//   );
+// };
+
+
+// export const useUser = () => {
+//   const context = useContext(UserContext);
+//   if (!context) {
+//     throw new Error('useUser must be used within a UserProvider');
+//   }
+//   return context;
+// };

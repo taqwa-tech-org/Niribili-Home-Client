@@ -8,10 +8,10 @@ import UserDashboard from "@/pages/UserDashboard";
 import { createBrowserRouter } from "react-router-dom";
 import MealCard from "@/components/Dashboard/MealCard";
 import UserProfileComponent from "@/components/Dashboard/UserProfileComponenet";
-import Notification from "@/components/Dashboard/Notification";
 import { userProfileLoader } from "@/Loader/userProfile.loader";
 import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
-import { usePageInView } from "framer-motion";
+
+
 
 const appRoutes = createBrowserRouter([
   {
@@ -31,7 +31,7 @@ const appRoutes = createBrowserRouter([
     children: [
       {
         index: true,
-        loader: userProfileLoader,
+
         element: (
           <PrivateRoute>
             <UserDashboard />,
@@ -60,10 +60,10 @@ const appRoutes = createBrowserRouter([
       {
         path: "/user-dashboard/profile",
         element: <UserProfileComponent />,
-        loader: userProfileLoader,
-      },
+        
+      }
 
-      { path: "/user-dashboard/notifications", element: <Notification /> },
+      
     ],
   },
 
