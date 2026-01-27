@@ -50,7 +50,10 @@ const createAxiosSecure = (): AxiosInstance => {
 
           if (!refreshToken) {
             localStorage.clear();
-            window.location.href = "/login";
+            // Avoid redirect loop - only redirect if not already on login page
+            if (!window.location.pathname.includes('/login')) {
+              window.location.href = "/login";
+            }
             return Promise.reject(error);
           }
 
@@ -68,7 +71,10 @@ const createAxiosSecure = (): AxiosInstance => {
           return axiosSecure(originalRequest);
         } catch (err) {
           localStorage.clear();
-          window.location.href = "/login";
+          // Avoid redirect loop - only redirect if not already on login page
+          if (!window.location.pathname.includes('/login')) {
+            window.location.href = "/login";
+          }
           return Promise.reject(err);
         }
       }
