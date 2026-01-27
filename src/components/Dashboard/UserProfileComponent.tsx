@@ -284,8 +284,8 @@ const UserProfileComponent = () => {
                   placeholder="+880 1XXX-XXXXXX"
                   value={formData.phone}
                   onChange={handleChange}
-                  disabled={isFieldsDisabled}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
                 />
               </div>
 
