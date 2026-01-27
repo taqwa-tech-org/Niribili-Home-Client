@@ -7,7 +7,7 @@ import NotFound from "@/pages/NotFound";
 import UserDashboard from "@/pages/UserDashboard";
 import { createBrowserRouter } from "react-router-dom";
 import MealCard from "@/components/Dashboard/MealCard";
-import UserProfileComponent from "@/components/Dashboard/UserProfileComponenet";
+import UserProfileComponent from "@/components/Dashboard/UserProfileComponent";
 import { userProfileLoader } from "@/Loader/userProfile.loader";
 import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
 

@@ -18,7 +18,7 @@ export interface UserProfile {
   billId: string | null;
   room: string;
   whatsappNumber: string;
-  accountStatus: "process" | "active" | "inactive";
+  accountStatus: "pending" | "process" | "active" | "inactive";
   bio: string;
   role: "user" | "admin";
   isDeleted: boolean;
