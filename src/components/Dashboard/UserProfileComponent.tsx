@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 const UserProfileComponent = () => {
   const axiosSecure = useAxiosSecure();
-  const { userProfile } = useUser();
+  const { userProfile, refetchUserProfile } = useUser();
 
   const [buildings, setBuildings] = useState([]);
   const [flats, setFlats] = useState([]);
@@ -65,7 +65,7 @@ const UserProfileComponent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ✅ Fetch flats when building changes
+
   useEffect(() => {
     if (formData.buildingId) {
       axiosSecure
@@ -77,9 +77,8 @@ const UserProfileComponent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.buildingId]);
 
-  // ✅ Handle input
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    // Don't allow changes if account is in process or approved
     if (isFieldsDisabled) return;
 
     const { name, value } = e.target;
@@ -100,7 +99,7 @@ const UserProfileComponent = () => {
     }
   };
 
-  // ✅ Upload image to Cloudinary
+
   const uploadToCloudinary = async (file: File): Promise<string | null> => {
     const cloudinaryFormData = new FormData();
     cloudinaryFormData.append("file", file);
@@ -128,7 +127,7 @@ const UserProfileComponent = () => {
     }
   };
 
-  // ✅ Submit form
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -191,6 +190,8 @@ const UserProfileComponent = () => {
       const res = await axiosSecure.patch(`/profile/${userProfile?._id}`, payload);
 
       if (res?.data?.success) {
+        // Refresh profile so UI reflects updated data without manual reload
+        await refetchUserProfile();
         toast.success(res.data.message || "Profile updated successfully!", { id: toastId });
       } else {
         toast.error("Failed to update profile", { id: toastId });
