@@ -6,15 +6,17 @@ import UserBilling from "@/pages/Billing";
 import NotFound from "@/pages/NotFound";
 import UserDashboard from "@/pages/UserDashboard";
 import { createBrowserRouter } from "react-router-dom";
-import MealCard from "@/components/Dashboard/MealCard"
-import UserProfileComponent from "@/components/Dashboard/UserProfileComponenet";
-import Notification from "@/components/Dashboard/Notification"
+import MealCard from "@/components/Dashboard/MealCard";
+import UserProfileComponent from "@/components/Dashboard/UserProfileComponent";
+import { userProfileLoader } from "@/Loader/userProfile.loader";
+import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
+
 
 
 const appRoutes = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <App/>,
     children: [
       { index: true, element: <Index /> },
       {
@@ -27,15 +29,44 @@ const appRoutes = createBrowserRouter([
     path: "user-dashboard",
     element: <DashboardLayout />,
     children: [
-      { index: true, element: <UserDashboard /> },
-      { path: "/user-dashboard/meals", element: <MealCard/> },
-      { path: "/user-dashboard/billing", element: <UserBilling /> },
-      { path: "/user-dashboard/profile", element: <UserProfileComponent/> },
-      { path: "/user-dashboard/notifications", element: <Notification/> }
+      {
+        index: true,
 
+        element: (
+          <PrivateRoute>
+            <UserDashboard />,
+          
+          </PrivateRoute>
+
+        ),
+      },
+      {
+        path: "/user-dashboard/meals",
+        element: (
+          <PrivateRoute>
+            <MealCard />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/user-dashboard/billing",
+        element: (
+          <PrivateRoute>
+            <UserBilling />
+          </PrivateRoute>
+        ),
+      },
+
+      {
+        path: "/user-dashboard/profile",
+        element: <UserProfileComponent />,
+        
+      }
+
+      
     ],
   },
- 
+
   {
     path: "*",
     element: <NotFound />,
