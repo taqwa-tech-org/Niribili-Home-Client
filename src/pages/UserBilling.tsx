@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import WalletSummary from "./WalletSummary";
 
 /* -------------------- Types -------------------- */
 interface BillingSummary {
@@ -22,7 +23,7 @@ interface BillingSummary {
   mealCost: number;
   previousDue: number;
   paidAmount: number;
-  deadline: string;
+
 }
 
 interface Transaction {
@@ -42,8 +43,8 @@ const UserBilling: React.FC = () => {
     serviceCharge: 200,
     mealCost: 1850,
     previousDue: 500,
-    paidAmount: 4000,
-    deadline: "জানুয়ারি ২৫, ২০২৬",
+    paidAmount: 4000
+   
   };
 
   const totalCurrentMonth =
@@ -109,52 +110,8 @@ const UserBilling: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass p-6 rounded-3xl border border-border/50">
-          <p className="text-xs font-bold text-muted-foreground uppercase">
-            মোট বিল (এই মাস + বকেয়া)
-          </p>
-          <p className="text-3xl font-black mt-2">৳ {grandTotal}</p>
-          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-accent">
-            <Calendar className="w-4 h-4" /> শেষ সময়: {bill.deadline}
-          </div>
-        </div>
-
-        <div className="glass p-6 rounded-3xl border border-border/50">
-          <p className="text-xs font-bold text-muted-foreground uppercase">
-            পরিশোধিত
-          </p>
-          <p className="text-3xl font-black mt-2 text-green-500">
-            ৳ {bill.paidAmount}
-          </p>
-          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-green-500">
-            <CheckCircle2 className="w-4 h-4" /> সর্বশেষ পেমেন্ট সম্পন্ন
-          </div>
-        </div>
-
-        <div
-          className={`glass p-6 rounded-3xl border border-border/50 ${
-            remainingDue > 0 ? "border-destructive/30" : ""
-          }`}
-        >
-          <p className="text-xs font-bold text-muted-foreground uppercase">
-            অবশিষ্ট বকেয়া
-          </p>
-          <p
-            className={`text-3xl font-black mt-2 ${
-              remainingDue > 0 ? "text-destructive" : "text-primary"
-            }`}
-          >
-            ৳ {remainingDue}
-          </p>
-          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-muted-foreground">
-            <AlertCircle className="w-4 h-4" />
-            {remainingDue > 0
-              ? "দ্রুত পেমেন্ট সম্পন্ন করুন"
-              : "আপনার কোনো বকেয়া নেই"}
-          </div>
-        </div>
-      </div>
+      
+      <WalletSummary/>
 
       {/* Payment History */}
       <div className="glass rounded-3xl border border-border/50 overflow-hidden flex flex-col">

@@ -5,12 +5,14 @@ import Index from "@/pages";
 import UserBilling from "@/pages/UserBilling";
 import NotFound from "@/pages/NotFound";
 import UserDashboard from "@/pages/UserDashboard";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Link } from "react-router-dom";
 import MealCard from "@/components/Dashboard/MealCard";
 import UserProfileComponent from "@/components/Dashboard/UserProfileComponent";
-import { userProfileLoader } from "@/Loader/userProfile.loader";
+// import { userProfileLoader } from "@/Loader/userProfile.loader";
 import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
-import AddMoney from "@/components/Dashboard/AddMoneyWithBalance";
+import AddMoneyWithBalance from "@/components/Dashboard/AddMoneyWithBalance";
+import PaymentFailed from "@/pages/PaymentFailed";
+
 
 
 
@@ -65,8 +67,9 @@ const appRoutes = createBrowserRouter([
       },
       {
         path: "/user-dashboard/addmoney",
-        element: <AddMoney/>
+        element: <AddMoneyWithBalance/>
       }
+      
 
       
     ],
@@ -76,6 +79,9 @@ const appRoutes = createBrowserRouter([
     path: "*",
     element: <NotFound />,
   },
+  {
+        path: "/cancel",  element: <PaymentFailed/>
+      }
 ]);
 
 export default appRoutes;

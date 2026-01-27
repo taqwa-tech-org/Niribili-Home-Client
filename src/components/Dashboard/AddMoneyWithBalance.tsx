@@ -66,7 +66,7 @@ const AddMoneyWithBalance = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mt-5 md:mt-8 lg:mt-10">
       
       {/* ================= LEFT: ADD MONEY ================= */}
       <div className="p-6 bg-white rounded-xl shadow">
