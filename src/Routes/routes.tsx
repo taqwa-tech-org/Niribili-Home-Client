@@ -10,6 +10,7 @@ import MealCard from "@/components/Dashboard/MealCard";
 import UserProfileComponent from "@/components/Dashboard/UserProfileComponent";
 import { userProfileLoader } from "@/Loader/userProfile.loader";
 import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
+import AddMoney from "@/components/Dashboard/AddMoney";
 
 
 
@@ -61,6 +62,10 @@ const appRoutes = createBrowserRouter([
         path: "/user-dashboard/profile",
         element: <UserProfileComponent />,
         
+      },
+      {
+        path: "/user-dashboard/addmoney",
+        element: <AddMoney/>
       }
 
       
