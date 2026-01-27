@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '@/Context/UserProvider';
 import useAxiosSecure from '@/hooks/useAxiosSecure';
-import { User, Phone, MessageCircle, Home, Building2, Users, AlertCircle, Camera, Upload, Loader2, Lock } from 'lucide-react';
+import { User, Phone, MessageCircle, Home, Building2, Users, AlertCircle, Camera, Upload, Loader2, Lock, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const UserProfileComponent = () => {
@@ -14,8 +14,10 @@ const UserProfileComponent = () => {
   const [previewNid, setPreviewNid] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Check if account is in "process" status - if so, disable all fields
+  // Check if account is in "process" or "approve" status - if so, disable all fields
   const isAccountInProcess = userProfile?.accountStatus === 'process';
+  const isAccountApproved = userProfile?.accountStatus === 'approve';
+  const isFieldsDisabled = isAccountInProcess || isAccountApproved;
 
   const [formData, setFormData] = useState({
     phone: '',
@@ -77,8 +79,8 @@ const UserProfileComponent = () => {
 
   // ✅ Handle input
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    // Don't allow changes if account is in process
-    if (isAccountInProcess) return;
+    // Don't allow changes if account is in process or approved
+    if (isFieldsDisabled) return;
 
     const { name, value } = e.target;
     const files = (e.target as HTMLInputElement).files;
@@ -130,9 +132,13 @@ const UserProfileComponent = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Prevent submission if account is in process
-    if (isAccountInProcess) {
-      toast.error("Your account is under review. You cannot update your profile at this time.");
+    // Prevent submission if account is in process or approved
+    if (isFieldsDisabled) {
+      if (isAccountApproved) {
+        toast.error("Your account is already approved. You cannot update your profile.");
+      } else {
+        toast.error("Your account is under review. You cannot update your profile at this time.");
+      }
       return;
     }
 
@@ -189,7 +195,7 @@ const UserProfileComponent = () => {
       } else {
         toast.error("Failed to update profile", { id: toastId });
       }
-      
+
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Something went wrong. Please try again later.", { id: toastId });
@@ -208,6 +214,15 @@ const UserProfileComponent = () => {
         </div>
 
         {/* Account Status Banner */}
+        {isAccountApproved && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+            <CheckCircle className="w-6 h-6 text-green-600" />
+            <div>
+              <h3 className="font-semibold text-green-800">Account Approved</h3>
+              <p className="text-sm text-green-700">Your account has been approved. All fields are locked and cannot be edited.</p>
+            </div>
+          </div>
+        )}
         {isAccountInProcess && (
           <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center gap-3">
             <Lock className="w-6 h-6 text-yellow-600" />
@@ -221,7 +236,7 @@ const UserProfileComponent = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           
           {/* Profile Photo Section */}
-          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isAccountInProcess ? 'opacity-75' : ''}`}>
+          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isFieldsDisabled ? 'opacity-75' : ''}`}>
             <div className="flex flex-col items-center">
               <div className="relative mb-4">
                 <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-4 border-white shadow-xl">
@@ -231,7 +246,7 @@ const UserProfileComponent = () => {
                     <User className="w-16 h-16 text-white" />
                   )}
                 </div>
-                {!isAccountInProcess && (
+                {!isFieldsDisabled && (
                   <label className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 rounded-full p-2 cursor-pointer shadow-lg transition-colors">
                     <Camera className="w-5 h-5 text-white" />
                     <input
@@ -240,7 +255,7 @@ const UserProfileComponent = () => {
                       accept="image/*"
                       onChange={handleChange}
                       className="hidden"
-                      disabled={isAccountInProcess}
+                      disabled={isFieldsDisabled}
                     />
                   </label>
                 )}
@@ -251,7 +266,7 @@ const UserProfileComponent = () => {
           </div>
 
           {/* Personal Information */}
-          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isAccountInProcess ? 'opacity-75' : ''}`}>
+          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isFieldsDisabled ? 'opacity-75' : ''}`}>
             <div className="flex items-center gap-2 mb-6">
               <User className="w-6 h-6 text-blue-600" />
               <h2 className="text-2xl font-bold text-gray-800">Personal Information</h2>
@@ -269,8 +284,8 @@ const UserProfileComponent = () => {
                   placeholder="+880 1XXX-XXXXXX"
                   value={formData.phone}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={isFieldsDisabled}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 />
               </div>
 
@@ -285,8 +300,8 @@ const UserProfileComponent = () => {
                   placeholder="+880 1XXX-XXXXXX"
                   value={formData.whatsappNumber}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={isFieldsDisabled}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 />
               </div>
 
@@ -297,16 +312,16 @@ const UserProfileComponent = () => {
                   placeholder="Tell us about yourself..."
                   value={formData.bio}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
+                  disabled={isFieldsDisabled}
                   rows={4}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 />
               </div>
             </div>
           </div>
 
           {/* Residence Information */}
-          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isAccountInProcess ? 'opacity-75' : ''}`}>
+          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isFieldsDisabled ? 'opacity-75' : ''}`}>
             <div className="flex items-center gap-2 mb-6">
               <Home className="w-6 h-6 text-purple-600" />
               <h2 className="text-2xl font-bold text-gray-800">Residence Details</h2>
@@ -322,8 +337,8 @@ const UserProfileComponent = () => {
                   name="buildingId"
                   value={formData.buildingId}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none bg-white ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={isFieldsDisabled}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none bg-white ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 >
                   <option value="">Select Building</option>
                   {buildings.map((b: { _id: string; name: string }) => (
@@ -343,8 +358,8 @@ const UserProfileComponent = () => {
                   name="flatId"
                   value={formData.flatId}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none bg-white ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                  disabled={!formData.buildingId || isAccountInProcess}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none bg-white ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={!formData.buildingId || isFieldsDisabled}
                 >
                   <option value="">Select Flat</option>
                   {flats.map((f: { _id: string; name: string }) => (
@@ -363,15 +378,15 @@ const UserProfileComponent = () => {
                   placeholder="e.g., 301"
                   value={formData.room}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={isFieldsDisabled}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 />
               </div>
             </div>
           </div>
 
           {/* Guardian & Emergency Contact */}
-          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isAccountInProcess ? 'opacity-75' : ''}`}>
+          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isFieldsDisabled ? 'opacity-75' : ''}`}>
             <div className="flex items-center gap-2 mb-6">
               <Users className="w-6 h-6 text-orange-600" />
               <h2 className="text-2xl font-bold text-gray-800">Guardian & Emergency Contact</h2>
@@ -385,8 +400,8 @@ const UserProfileComponent = () => {
                   placeholder="Full name"
                   value={formData.guardianName}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={isFieldsDisabled}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 />
               </div>
 
@@ -397,8 +412,8 @@ const UserProfileComponent = () => {
                   placeholder="+880 1XXX-XXXXXX"
                   value={formData.guardianPhone}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={isFieldsDisabled}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 />
               </div>
 
@@ -409,8 +424,8 @@ const UserProfileComponent = () => {
                   placeholder="e.g., Father, Mother"
                   value={formData.guardianRelation}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={isFieldsDisabled}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 />
               </div>
 
@@ -424,27 +439,27 @@ const UserProfileComponent = () => {
                   placeholder="+880 1XXX-XXXXXX"
                   value={formData.emergencyContact}
                   onChange={handleChange}
-                  disabled={isAccountInProcess}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${isAccountInProcess ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  disabled={isFieldsDisabled}
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${isFieldsDisabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 />
               </div>
             </div>
           </div>
 
           {/* NID Upload */}
-          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isAccountInProcess ? 'opacity-75' : ''}`}>
+          <div className={`bg-white rounded-2xl shadow-lg p-8 ${isFieldsDisabled ? 'opacity-75' : ''}`}>
             <div className="flex items-center gap-2 mb-6">
               <Upload className="w-6 h-6 text-indigo-600" />
               <h2 className="text-2xl font-bold text-gray-800">Identity Verification</h2>
             </div>
             
             <div className="space-y-4">
-              <label className={`block ${isAccountInProcess ? 'pointer-events-none' : ''}`}>
-                <div className={`border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-500 transition-colors ${isAccountInProcess ? 'cursor-not-allowed bg-gray-50' : 'cursor-pointer'}`}>
+              <label className={`block ${isFieldsDisabled ? 'pointer-events-none' : ''}`}>
+                <div className={`border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-500 transition-colors ${isFieldsDisabled ? 'cursor-not-allowed bg-gray-50' : 'cursor-pointer'}`}>
                   {previewNid ? (
                     <div className="space-y-4">
                       <img src={previewNid} alt="NID" className="max-h-48 mx-auto rounded-lg shadow-md" />
-                      {!isAccountInProcess && <p className="text-sm text-gray-600">Click to change NID photo</p>}
+                      {!isFieldsDisabled && <p className="text-sm text-gray-600">Click to change NID photo</p>}
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -461,7 +476,7 @@ const UserProfileComponent = () => {
                     accept="image/*"
                     onChange={handleChange}
                     className="hidden"
-                    disabled={isAccountInProcess}
+                    disabled={isFieldsDisabled}
                   />
                 </div>
               </label>
@@ -472,9 +487,9 @@ const UserProfileComponent = () => {
           <div className="flex justify-center">
             <button
               type="submit"
-              disabled={isAccountInProcess || isSubmitting}
+              disabled={isFieldsDisabled || isSubmitting}
               className={`px-8 py-4 font-semibold rounded-full shadow-lg transition-all duration-200 flex items-center gap-2 ${
-                isAccountInProcess || isSubmitting
+                isFieldsDisabled || isSubmitting
                   ? 'bg-gray-400 cursor-not-allowed text-white'
                   : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105'
               }`}
@@ -483,6 +498,11 @@ const UserProfileComponent = () => {
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
                   Updating...
+                </>
+              ) : isAccountApproved ? (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  Account Approved
                 </>
               ) : isAccountInProcess ? (
                 <>
