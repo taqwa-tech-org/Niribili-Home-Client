@@ -10,7 +10,7 @@ import MealCard from "@/components/Dashboard/MealCard";
 import UserProfileComponent from "@/components/Dashboard/UserProfileComponent";
 import { userProfileLoader } from "@/Loader/userProfile.loader";
 import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
-import AddMoney from "@/components/Dashboard/AddMoney";
+import AddMoney from "@/components/Dashboard/AddMoneyWithBalance";
 
 
 
