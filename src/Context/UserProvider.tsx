@@ -88,10 +88,16 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   // ====================
-  // Auto fetch user on app load
+  // Auto fetch user on app load (only if token exists)
   // ====================
   useEffect(() => {
-    fetchUser();
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      fetchUser();
+    } else {
+      setUserLoading(false);
+      setProfileLoading(false);
+    }
   }, [fetchUser]);
 
   // ====================
