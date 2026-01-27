@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
 import { Upload, Edit2, X, Loader, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import useAxiosSecure from "@/hooks/useAxiosSecure";
@@ -18,256 +17,278 @@ interface UserProfile {
   room?: string;
   whatsappNumber?: string;
   bio?: string;
+  accountStatus?: string;
 }
 
-const buildingData: Record<string, { flats: string[]; rooms: string[] }> = {
-  "Niribili-N2": { flats: ["A-1","B-1","A-3","B-3","A-4","B-4","A-5","B-5","A-6","B-6"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] },
-  "Niribili-N3": { flats: ["0-A","0-B","1-A","1-B","2-A","2-B","3-A","3-B","4-A","4-B","5-A","5-B","6-A","6-B"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] },
-  "Niribili-N6": { flats: ["3-A","3-B","4-A","4-B","5-A","5-B","6-A","6-B","7-A","7-B"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] },
-  "Niribili-N9": { flats: ["G-1","G-2","G-3","B-1","A-3","B-3","B-4","T-1","T-2"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] },
-  "Niribili-N10": { flats: ["0-A","0-B","1-A","1-B","2-A","2-B","3-A","3-B","4-A","4-B","5-A","5-B","6-A","6-B"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] },
-};
+const buildingData: Record<string, { flats: string[]; rooms: string[] }> = { "Niribili-N2": { flats: ["A-1","B-1","A-3","B-3","A-4","B-4","A-5","B-5","A-6","B-6"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] }, "Niribili-N3": { flats: ["0-A","0-B","1-A","1-B","2-A","2-B","3-A","3-B","4-A","4-B","5-A","5-B","6-A","6-B"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] }, "Niribili-N6": { flats: ["3-A","3-B","4-A","4-B","5-A","5-B","6-A","6-B","7-A","7-B"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] }, "Niribili-N9": { flats: ["G-1","G-2","G-3","B-1","A-3","B-3","B-4","T-1","T-2"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] }, "Niribili-N10": { flats: ["0-A","0-B","1-A","1-B","2-A","2-B","3-A","3-B","4-A","4-B","5-A","5-B","6-A","6-B"], rooms: ["Master Bed Room","Semi master Bed Room","Normal Bed Room","Special Bed Room","Extra Room 1","Extra Room 2"] }, };
 
 const UserProfileComponent: React.FC = () => {
+  const axiosSecure = useAxiosSecure();
+  const { userProfile, userLoading, profileLoading, error } = useUser();
+
   const [profile, setProfile] = useState<UserProfile>({});
   const [formData, setFormData] = useState<UserProfile>({});
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const axiosSecure = useAxiosSecure();
-  const { user, userProfile, userLoading, profileLoading, error } = useUser();
+  /* ================= backend → state ================= */
+  useEffect(() => {
+    if (userProfile) {
+      const normalized: UserProfile = {
+        profilePhoto: userProfile.profilePhoto,
+        nidPhoto: userProfile.nidPhoto,
+        guardianName: userProfile.guardianName,
+        guardianPhone: userProfile.guardianPhone,
+        guardianRelation: userProfile.guardianRelation,
+        emergencyContact: userProfile.emergencyContact,
+        whatsappNumber: userProfile.whatsappNumber,
+        bio: userProfile.bio,
+        room: userProfile.room,
+        buildingId:
+          typeof userProfile.buildingId === "object"
+            ? userProfile.buildingId?.name
+            : userProfile.buildingId,
+        flatId:
+          typeof userProfile.flatId === "object"
+            ? userProfile.flatId?.name
+            : userProfile.flatId,
+        accountStatus: userProfile.accountStatus || "process",
+      };
+
+      setProfile(normalized);
+      setFormData(normalized);
+    }
+  }, [userProfile]);
 
   if (userLoading || profileLoading) return <FullScreenLoading />;
   if (error) return <p>{error}</p>;
   if (!userProfile) return <p>Profile not available</p>;
 
+  /* ================= handlers ================= */
   const handleInputChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleBuildingChange = (value: string) => {
-    setFormData({ ...formData, buildingId: value, flatId: "", room: "" });
+    setFormData(prev => ({ ...prev, buildingId: value, flatId: "", room: "" }));
   };
 
   const handleFlatChange = (value: string) => {
-    setFormData({ ...formData, flatId: value, room: "" });
+    setFormData(prev => ({ ...prev, flatId: value, room: "" }));
   };
 
-  // Profile Photo Upload
-  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  /* ================= image upload ================= */
+  const uploadImage = async (file: File, preset: string, cloud: string) => {
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "Niribili");
-    data.append("cloud_name", "djw8kaemj");
+    data.append("upload_preset", preset);
+    data.append("cloud_name", cloud);
 
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloud}/image/upload`,
+      { method: "POST", body: data }
+    );
+    return res.json();
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    setSaving(true);
     try {
-      setSaving(true);
-      const res = await fetch("https://api.cloudinary.com/v1_1/djw8kaemj/image/upload", { method: "POST", body: data });
-      const uploadedImage = await res.json();
-      setFormData({ ...formData, profilePhoto: uploadedImage.url });
+      const img = await uploadImage(e.target.files[0], "Niribili", "djw8kaemj");
+      setFormData(prev => ({ ...prev, profilePhoto: img.url }));
       toast.success("প্রোফাইল ছবি আপডেট হয়েছে ✅");
-    } catch (err) {
-      toast.error("ছবি আপলোড ব্যর্থ");
     } finally {
       setSaving(false);
     }
   };
 
-  // NID Photo Upload
   const handleNidPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", "Niribili Nid");
-    data.append("cloud_name", "dydqqj7mu");
-
+    if (!e.target.files?.[0]) return;
+    setSaving(true);
     try {
-      setSaving(true);
-      const res = await fetch("https://api.cloudinary.com/v1_1/dydqqj7mu/image/upload", { method: "POST", body: data });
-      const uploadedImage = await res.json();
-      setFormData({ ...formData, nidPhoto: uploadedImage.url });
-      toast.success("NID/জন্ম সনদ ছবি আপডেট হয়েছে ✅");
-    } catch (err) {
-      toast.error("ছবি আপলোড ব্যর্থ");
+      const img = await uploadImage(e.target.files[0], "Niribili Nid", "dydqqj7mu");
+      setFormData(prev => ({ ...prev, nidPhoto: img.url }));
+      toast.success("NID ছবি আপডেট হয়েছে ✅");
     } finally {
       setSaving(false);
     }
   };
 
-  // Save All Data
+  /* ================= save ================= */
   const handleSaveAllData = async () => {
     try {
       setSaving(true);
-      const hasData = Object.values(formData).some(val => typeof val === "string" && val.length > 0);
-      if (!hasData) {
-        toast.error("কমপক্ষে একটি ফিল্ড পূরণ করুন");
-        return;
-      }
 
-  const response = await axiosSecure.patch(`/profile/${userProfile._id}`, formData);
-  console.log(formData)
-  if (response.data) {
-    setProfile(formData);
-    setIsEditing(false);
+      const payload = {
+        ...formData,
+        accountStatus: "process", // ✅ hardcoded
+      };
+
+      const res = await axiosSecure.patch(
+        `/profile/${userProfile._id}`,
+        payload
+      );
+
+      if (res.data) {
+        setProfile(payload);
+        setIsEditing(false);
         toast.success("ডেটা সংরক্ষণ হয়েছে ✅");
       }
-    } catch (err) {
-      console.error("fianl error", err);
-      toast.error("ডেটা সংরক্ষণ ব্যর্থ");
+    } catch {
+      toast.error("ডেটা সংরক্ষণ ব্যর্থ ❌");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCancel = () => {
-    setFormData(profile);
-    setIsEditing(false);
-  };
+  const availableFlats =
+    formData.buildingId && buildingData[formData.buildingId]
+      ? buildingData[formData.buildingId].flats
+      : [];
 
-  const handleEdit = () => {
-    setFormData(profile);
-    setIsEditing(true);
-  };
+  const availableRooms =
+    formData.buildingId && buildingData[formData.buildingId]
+      ? buildingData[formData.buildingId].rooms
+      : [];
 
-  const availableFlats = formData.buildingId ? buildingData[formData.buildingId]?.flats || [] : [];
-  const availableRooms = formData.buildingId ? buildingData[formData.buildingId]?.rooms || [] : [];
-
+  /* ================= UI ================= */
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-secondary/50 p-4 sm:p-8">
-      <div className="max-w-4xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">আমার প্রোফাইল</h1>
-          <p className="text-gray-600 mt-2">আপনার তথ্য দেখুন এবং আপডেট করুন</p>
-        </motion.div>
+    <div className="min-h-screen bg-secondary/50 p-6">
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-6">
 
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-          {/* Profile Photo */}
-          <div className="text-center mb-8">
-            <div className="relative inline-block">
-              <img src={formData.profilePhoto || "/default-avatar.png"} alt="Profile" className="w-32 h-32 rounded-full border-4 border-indigo-200 object-cover" />
-              <label className="absolute bottom-0 right-0 bg-indigo-600 text-white p-3 rounded-full cursor-pointer hover:bg-indigo-700 transition">
-                <Upload size={18} />
-                <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
-              </label>
-            </div>
-            <p className="text-sm text-gray-500 mt-3">প্রোফাইল ছবি আপলোড করুন</p>
+        {/* profile photo */}
+        <div className="text-center mb-8">
+          <div className="relative inline-block">
+            <img
+              src={formData.profilePhoto || "/default-avatar.png"}
+              className="w-32 h-32 rounded-full object-cover border"
+            />
+            <label className="absolute bottom-0 right-0 bg-indigo-600 p-2 rounded-full cursor-pointer text-white">
+              <Upload size={16} />
+              <input type="file" hidden accept="image/*" onChange={handlePhotoUpload} />
+            </label>
           </div>
+        </div>
 
-          {/* NID Photo */}
-          <div className="mb-8 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">জাতীয় পরিচয়পত্র / জন্ম সনদ আপলোড করুন</h3>
-                <p className="text-sm text-gray-600">{formData.nidPhoto ? "ছবি আপলোড হয়েছে ✅" : "ছবি নির্বাচন করুন"}</p>
-              </div>
-              <label className="px-6 py-3 bg-indigo-600 text-white rounded-lg cursor-pointer hover:bg-indigo-700 transition font-semibold flex items-center gap-2">
-                <Upload size={20} />
-                আপলোড করুন
-                <input type="file" accept="image/*" onChange={handleNidPhotoUpload} className="hidden" />
-              </label>
-            </div>
-            {formData.nidPhoto && <img src={formData.nidPhoto} alt="NID" className="w-full max-w-md h-auto rounded-lg border-2 border-gray-300 mt-4" />}
-          </div>
+        {/* nid */}
+        <div className="mb-6">
+          <label className="font-semibold block mb-2">NID / Birth Certificate</label>
+          <input type="file" accept="image/*" onChange={handleNidPhotoUpload} />
+          {formData.nidPhoto && (
+            <img src={formData.nidPhoto} className="mt-3 max-w-sm rounded" />
+          )}
+        </div>
 
-          {/* Editable Fields */}
-          <div className="space-y-6">
-            {!isEditing ? (
-              <>
-                <ProfileDisplayField label="সম্পূর্ণ নাম" value={user.name} />
-                <ProfileDisplayField label="ফোন নম্বর" value={String(user.phone)} />
-                <ProfileDisplayField label="ইমেইল" value={user.email} />
-                <ProfileDisplayField label="হোয়াটসঅ্যাপ নম্বর" value={profile.whatsappNumber} />
-                <ProfileDisplayField label="অভিভাবকের নাম" value={profile.guardianName} />
-                <ProfileDisplayField label="অভিভাবকের ফোন" value={profile.guardianPhone} />
-                <ProfileDisplayField label="অভিভাবকের সম্পর্ক" value={profile.guardianRelation} />
-                <ProfileDisplayField label="জরুরি যোগাযোগ" value={profile.emergencyContact} />
-                <ProfileDisplayField label="বিল্ডিং এর নাম" value={profile.buildingId} />
-                <ProfileDisplayField label="ফ্ল্যাট" value={profile.flatId} />
-                <ProfileDisplayField label="রুম" value={profile.room} />
-                <ProfileDisplayField label="নিজের সম্পর্কে বলুন" value={profile.bio} />
-              </>
-            ) : (
-              <>
-                <ProfileEditField label="হোয়াটসঅ্যাপ নম্বর" field="whatsappNumber" value={formData.whatsappNumber} onChange={handleInputChange} placeholder="+880..." />
-                <ProfileEditField label="অভিভাবকের নাম" field="guardianName" value={formData.guardianName} onChange={handleInputChange} placeholder="অভিভাবকের নাম" />
-                <ProfileEditField label="অভিভাবকের ফোন" field="guardianPhone" value={formData.guardianPhone} onChange={handleInputChange} placeholder="+880..." />
-                <ProfileEditField label="অভিভাবকের সম্পর্ক" field="guardianRelation" value={formData.guardianRelation} onChange={handleInputChange} placeholder="পিতা / মাতা" />
-                <ProfileEditField label="জরুরি যোগাযোগ" field="emergencyContact" value={formData.emergencyContact} onChange={handleInputChange} placeholder="+880..." />
+        {/* fields */}
+        <div className="space-y-4">
+          {isEditing ? (
+            <>
+              <ProfileEditField label="WhatsApp" field="whatsappNumber" value={formData.whatsappNumber} onChange={handleInputChange} />
+              <ProfileEditField label="Guardian Name" field="guardianName" value={formData.guardianName} onChange={handleInputChange} />
+              <ProfileEditField label="Guardian Phone" field="guardianPhone" value={formData.guardianPhone} onChange={handleInputChange} />
+              <ProfileEditField label="Relation" field="guardianRelation" value={formData.guardianRelation} onChange={handleInputChange} />
+              <ProfileEditField label="Emergency Contact" field="emergencyContact" value={formData.emergencyContact} onChange={handleInputChange} />
 
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">বিল্ডিং এর নাম</label>
-                  <select value={formData.buildingId || ""} onChange={(e) => handleBuildingChange(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="">বিল্ডিং নির্বাচন করুন</option>
-                    {Object.keys(buildingData).map((b) => <option key={b} value={b}>{b}</option>)}
-                  </select>
-                </div>
+              <select className="border w-full p-2 rounded" value={formData.buildingId || ""} onChange={e => handleBuildingChange(e.target.value)}>
+                <option value="">Select Building</option>
+                {Object.keys(buildingData).map(b => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
 
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">ফ্ল্যাট</label>
-                  <select value={formData.flatId || ""} onChange={(e) => handleFlatChange(e.target.value)} disabled={!formData.buildingId} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                    <option value="">{formData.buildingId ? "ফ্ল্যাট নির্বাচন করুন" : "প্রথমে বিল্ডিং নির্বাচন করুন"}</option>
-                    {availableFlats.map(f => <option key={f} value={f}>{f}</option>)}
-                  </select>
-                </div>
+              <select className="border w-full p-2 rounded" value={formData.flatId || ""} onChange={e => handleFlatChange(e.target.value)}>
+                <option value="">Select Flat</option>
+                {availableFlats.map(f => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
+              </select>
 
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">রুম</label>
-                  <select value={formData.room || ""} onChange={(e) => handleInputChange("room", e.target.value)} disabled={!formData.buildingId} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                    <option value="">{formData.buildingId ? "রুম নির্বাচন করুন" : "প্রথমে বিল্ডিং নির্বাচন করুন"}</option>
-                    {availableRooms.map(r => <option key={r} value={r}>{r}</option>)}
-                  </select>
-                </div>
+              <select className="border w-full p-2 rounded" value={formData.room || ""} onChange={e => handleInputChange("room", e.target.value)}>
+                <option value="">Select Room</option>
+                {availableRooms.map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
 
-                <ProfileEditTextArea label="নিজের সম্পর্কে বলুন" field="bio" value={formData.bio} onChange={handleInputChange} placeholder="নিজের সম্পর্কে কিছু লিখুন..." />
-              </>
-            )}
-          </div>
+              <ProfileEditTextArea label="Bio" field="bio" value={formData.bio} onChange={handleInputChange} />
+            </>
+          ) : (
+            <>
+              <ProfileDisplayField label="WhatsApp" value={profile.whatsappNumber} />
+              <ProfileDisplayField label="Guardian Name" value={profile.guardianName} />
+              <ProfileDisplayField label="Guardian Phone" value={profile.guardianPhone} />
+              <ProfileDisplayField label="Relation" value={profile.guardianRelation} />
+              <ProfileDisplayField label="Emergency Contact" value={profile.emergencyContact} />
+              <ProfileDisplayField label="Building" value={profile.buildingId} />
+              <ProfileDisplayField label="Flat" value={profile.flatId} />
+              <ProfileDisplayField label="Room" value={profile.room} />
+              <ProfileDisplayField label="Bio" value={profile.bio} />
+            </>
+          )}
+        </div>
 
-          {/* Action Buttons */}
-          <div className="mt-8 flex gap-3 justify-end border-t pt-6">
-            {isEditing ? (
-              <>
-                <button onClick={handleCancel} disabled={saving} className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold disabled:opacity-50"><X className="inline mr-2" size={20}/> বাতিল করুন</button>
-                <button onClick={handleSaveAllData} disabled={saving} className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold disabled:opacity-50 flex items-center gap-2">
-                  {saving ? <><Loader className="animate-spin" size={20}/> সংরক্ষণ হচ্ছে...</> : <><Save size={20}/> সংরক্ষণ করুন</>}
-                </button>
-              </>
-            ) : (
-              <button onClick={handleEdit} className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold flex items-center gap-2"><Edit2 size={20}/> আপডেট করুন</button>
-            )}
-          </div>
-        </motion.div>
+        {/* actions */}
+        <div className="flex justify-end gap-3 mt-6">
+          {isEditing ? (
+            <>
+              <button
+                onClick={() => { setFormData(profile); setIsEditing(false); }}
+                className="border px-4 py-2 rounded flex items-center gap-2"
+              >
+                <X size={16} /> Cancel
+              </button>
+              <button
+                onClick={handleSaveAllData}
+                disabled={saving}
+                className="bg-green-600 text-white px-4 py-2 rounded flex items-center gap-2"
+              >
+                {saving ? <Loader className="animate-spin" /> : <Save size={16} />}
+                Save
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded flex items-center gap-2"
+            >
+              <Edit2 size={16} /> Edit
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-// Display Field
-const ProfileDisplayField: React.FC<{label: string; value?: string}> = ({ label, value }) => (
-  <div className="bg-gray-50 px-4 py-3 rounded-lg">
-    <label className="text-sm font-semibold text-gray-700 block mb-2">{label}</label>
-    <p className="text-gray-900">{value || "তথ্য নেই"}</p>
+/* ================= helpers ================= */
+const ProfileDisplayField = ({ label, value }: { label: string; value?: string }) => (
+  <div>
+    <p className="text-sm text-gray-500">{label}</p>
+    <p className="font-medium">{value || "N/A"}</p>
   </div>
 );
 
-// Edit Field
-const ProfileEditField: React.FC<{label: string; field: string; value?: string; onChange: (field: string, value: string) => void; placeholder?: string}> = ({ label, field, value, onChange, placeholder }) => (
+const ProfileEditField = ({ label, field, value, onChange }: any) => (
   <div>
-    <label className="text-sm font-semibold text-gray-700 block mb-2">{label}</label>
-    <input type="text" value={value || ""} onChange={(e) => onChange(field, e.target.value)} placeholder={placeholder} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+    <label className="text-sm">{label}</label>
+    <input
+      value={value || ""}
+      onChange={e => onChange(field, e.target.value)}
+      className="border w-full px-3 py-2 rounded"
+    />
   </div>
 );
 
-// Edit TextArea
-const ProfileEditTextArea: React.FC<{label: string; field: string; value?: string; onChange: (field: string, value: string) => void; placeholder?: string}> = ({ label, field, value, onChange, placeholder }) => (
+const ProfileEditTextArea = ({ label, field, value, onChange }: any) => (
   <div>
-    <label className="text-sm font-semibold text-gray-700 block mb-2">{label}</label>
-    <textarea value={value || ""} onChange={(e) => onChange(field, e.target.value)} rows={4} placeholder={placeholder} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+    <label className="text-sm">{label}</label>
+    <textarea
+      value={value || ""}
+      onChange={e => onChange(field, e.target.value)}
+      rows={3}
+      className="border w-full px-3 py-2 rounded"
+    />
   </div>
 );
 
