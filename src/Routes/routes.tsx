@@ -8,14 +8,15 @@ import UserDashboard from "@/pages/UserDashboard";
 import { createBrowserRouter } from "react-router-dom";
 import MealCard from "@/components/Dashboard/MealCard";
 import UserProfileComponent from "@/components/Dashboard/UserProfileComponenet";
-import Notification from "@/components/Dashboard/Notification";
 import { userProfileLoader } from "@/Loader/userProfile.loader";
 import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
+
+
 
 const appRoutes = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <App/>,
     children: [
       { index: true, element: <Index /> },
       {
@@ -30,10 +31,13 @@ const appRoutes = createBrowserRouter([
     children: [
       {
         index: true,
+
         element: (
           <PrivateRoute>
-            <UserDashboard />
+            <UserDashboard />,
+          
           </PrivateRoute>
+
         ),
       },
       {
@@ -56,10 +60,10 @@ const appRoutes = createBrowserRouter([
       {
         path: "/user-dashboard/profile",
         element: <UserProfileComponent />,
-        loader: userProfileLoader,
-      },
+        
+      }
 
-      { path: "/user-dashboard/notifications", element: <Notification /> },
+      
     ],
   },
 

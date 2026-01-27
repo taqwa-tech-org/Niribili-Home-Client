@@ -37,7 +37,7 @@ const Navbar = () => {
   const handleLogout = () => {
     // Remove token from localStorage
     localStorage.removeItem("accessToken");
-    // localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     // localStorage.removeItem("userName");
     // localStorage.removeItem("userImage");
     
