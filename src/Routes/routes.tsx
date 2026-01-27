@@ -2,7 +2,7 @@ import App from "@/App";
 import AuthComponent from "@/components/Auth/AuthComponent";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Index from "@/pages";
-import UserBilling from "@/pages/Billing";
+import UserBilling from "@/pages/UserBilling";
 import NotFound from "@/pages/NotFound";
 import UserDashboard from "@/pages/UserDashboard";
 import { createBrowserRouter } from "react-router-dom";
