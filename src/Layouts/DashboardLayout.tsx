@@ -21,9 +21,10 @@ const userMenuItems = [
   {icon: Home, label: "হোম", href: "/"},
   { icon: LayoutDashboard, label: "ড্যাশবোর্ড", href: "/user-dashboard" },
   { icon: UtensilsCrossed, label: "খাবার অর্ডার", href: "/user-dashboard/meals" },
-  { icon: CreditCard, label: "বিলিং", href: "/user-dashboard/billing" },
-  { icon: User, label: "প্রোফাইল", href: "/user-dashboard/profile" },
-  // { icon: Bell, label: "নোটিফিকেশন", href: "/user-dashboard/notifications" },
+  { icon: Menu, label: "বিলিং", href: "/user-dashboard/billing" },
+  {icon : CreditCard, label: "টাকা যোগ করুন", href: "/user-dashboard/addmoney"},
+  { icon: User, label: "প্রোফাইল", href: "/user-dashboard/profile" }
+  
 ];
 
 const DashboardLayout = () => {
