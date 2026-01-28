@@ -14,7 +14,8 @@ import AddMoneyWithBalance from "@/components/Dashboard/AddMoneyWithBalance";
 import PaymentFailed from "@/pages/PaymentFailed";
 import Login from "@/components/Auth/Login";
 import Register from "@/components/Auth/Register";
-
+import PaymentCancel from "@/pages/PaymentCancel";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 const appRoutes = createBrowserRouter([
   {
     path: "/",
@@ -29,6 +30,18 @@ const appRoutes = createBrowserRouter([
         path: "/register",
         element: <Register />,
       },
+      {
+        path: "/failed",
+        element: <PaymentFailed />,
+      },
+      {
+        path: "/cancel",
+        element: <PaymentCancel/>,
+      },
+      {
+        path: "/success",
+        element : <PaymentSuccess/>
+      }
     ],
   },
   {
@@ -75,10 +88,6 @@ const appRoutes = createBrowserRouter([
   {
     path: "*",
     element: <NotFound />,
-  },
-  {
-    path: "/cancel",
-    element: <PaymentFailed />,
   },
 ]);
 
