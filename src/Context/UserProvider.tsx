@@ -75,6 +75,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const res = await axiosSecure.get<UserProfileResponse>(
         '/profile/userId'
       );
+      // console.log(res.data.data)
       setUserProfile(res.data.data);
     } catch (err) {
       setError(
