@@ -96,13 +96,13 @@ const UserBilling: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 w-full sm:w-auto">
-          <Button
+          {/* <Button
             variant="outline"
             className="gap-2 border-border flex-1 sm:flex-none text-xs sm:text-sm"
           >
             <Download className="w-4 h-4 flex-shrink-0" />
             <span className="truncate">ডাউনলোড ইনভয়েস</span>
-          </Button>
+          </Button> */}
           <Button className="bg-primary shadow-glow gap-2 flex-1 sm:flex-none text-xs sm:text-sm">
             <CreditCard className="w-4 h-4 flex-shrink-0" />
             <span className="truncate">পেমেন্ট করুন</span>

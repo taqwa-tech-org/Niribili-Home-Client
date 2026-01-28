@@ -17,6 +17,17 @@ const Register: React.FC = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 🔐 password validation
+    if (password.length < 5) {
+      Swal.fire({
+        icon: "error",
+        title: "দুর্বল পাসওয়ার্ড",
+        text: "কমপক্ষে ৫ অক্ষরের একটি শক্ত পাসওয়ার্ড ব্যবহার করুন",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
