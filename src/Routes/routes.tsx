@@ -1,8 +1,8 @@
 import App from "@/App";
-import AuthComponent from "@/components/Auth/AuthComponent";
+
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Index from "@/pages";
-import UserBilling from "@/pages/UserBilling";
+import UserBilling from "@/components/Dashboard/UserBilling";
 import NotFound from "@/pages/NotFound";
 import UserDashboard from "@/pages/UserDashboard";
 import { createBrowserRouter, Link } from "react-router-dom";
@@ -12,19 +12,22 @@ import UserProfileComponent from "@/components/Dashboard/UserProfileComponent";
 import PrivateRoute from "@/PrivateRoutes/PrivateRoute";
 import AddMoneyWithBalance from "@/components/Dashboard/AddMoneyWithBalance";
 import PaymentFailed from "@/pages/PaymentFailed";
-
-
-
+import Login from "@/components/Auth/Login";
+import Register from "@/components/Auth/Register";
 
 const appRoutes = createBrowserRouter([
   {
     path: "/",
-    element: <App/>,
+    element: <App />,
     children: [
       { index: true, element: <Index /> },
       {
         path: "/login",
-        element: <AuthComponent />,
+        element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
       },
     ],
   },
@@ -38,9 +41,7 @@ const appRoutes = createBrowserRouter([
         element: (
           <PrivateRoute>
             <UserDashboard />,
-          
           </PrivateRoute>
-
         ),
       },
       {
@@ -63,15 +64,11 @@ const appRoutes = createBrowserRouter([
       {
         path: "/user-dashboard/profile",
         element: <UserProfileComponent />,
-        
       },
       {
         path: "/user-dashboard/addmoney",
-        element: <AddMoneyWithBalance/>
-      }
-      
-
-      
+        element: <AddMoneyWithBalance />,
+      },
     ],
   },
 
@@ -80,8 +77,9 @@ const appRoutes = createBrowserRouter([
     element: <NotFound />,
   },
   {
-        path: "/cancel",  element: <PaymentFailed/>
-      }
+    path: "/cancel",
+    element: <PaymentFailed />,
+  },
 ]);
 
 export default appRoutes;
