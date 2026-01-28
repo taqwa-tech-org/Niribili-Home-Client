@@ -4,11 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
 
+
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userImage, setUserImage] = useState("/default-avatar.png");
+  const [userImage, setUserImage] = useState("https://i.ibb.co.com/jvWvrYyy/images.jpg");
   const [userName, setUserName] = useState("");
 
   // Check for token on component mount
@@ -38,15 +40,17 @@ const Navbar = () => {
     // Remove token from localStorage
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    // localStorage.removeItem("userName");
-    // localStorage.removeItem("userImage");
+   
     
     setIsLoggedIn(false);
     setUserName("");
-    setUserImage("/default-avatar.png");
+    setUserImage("");
     setIsProfileOpen(false);
     setIsOpen(false);
   };
+
+  
+ 
 
   return (
     <motion.nav
@@ -128,6 +132,10 @@ const Navbar = () => {
                               <LayoutDashboard className="w-4 h-4" />
                               ড্যাশবোর্ড
                             </Link>
+                            <Link to="/changepassword">
+                             <p className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-primary/10 transition-colors">পাসওয়ার্ড পরিবর্তন</p>
+                             
+                            </Link>
                             <button
                               onClick={handleLogout}
                               className="flex items-center gap-2 px-4 py-2 w-full text-sm hover:bg-red-500/10 hover:text-red-500 transition-colors"
@@ -190,48 +198,9 @@ const Navbar = () => {
                   {item.name}
                 </motion.a>
               ))}
-              <div className="pt-4 border-t border-border">
-                {isLoggedIn ? (
-                  <div className="space-y-2">
-                    {userImage && (
-                      <div className="flex items-center gap-3 px-2 py-3 rounded-lg bg-secondary/50">
-                        <img
-                          src={userImage}
-                          alt={userName}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">
-                            {userName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Logged in
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    <Link
-                      to="/user-dashboard"
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-foreground hover:bg-primary/10 rounded-lg transition-colors font-medium"
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      ড্যাশবোর্ড
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-foreground hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors font-medium"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      লগআউট
-                    </button>
-                  </div>
-                ) : (
-                  <Button variant="hero" asChild className="w-full">
-                    <Link to="/login">লগইন</Link>
-                  </Button>
-                )}
-              </div>
+              <Link  to="/changepassword">
+               <p className="mt-3 hover:text-green-400">পাসওয়ার্ড পরিবর্তন</p>
+              </Link>
             </div>
           </motion.div>
         )}
