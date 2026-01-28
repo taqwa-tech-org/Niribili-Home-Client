@@ -26,7 +26,8 @@ const UserProfileComponent = () => {
   const [previewProfile, setPreviewProfile] = useState<string | null>(null);
   const [previewNid, setPreviewNid] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [errors, setErrors] = useState<string[]>([]);
+  
   // Check if account is in "process" or "approve" status - if so, disable all fields
   const isAccountInProcess = userProfile?.accountStatus === "process";
   const isAccountApproved = userProfile?.accountStatus === "approve";
@@ -119,6 +120,11 @@ const UserProfileComponent = () => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+    
+    // Clear errors when user starts typing
+    if (errors.length > 0) {
+      setErrors([]);
+    }
   };
 
   const uploadToCloudinary = async (file: File): Promise<string | null> => {
@@ -148,20 +154,65 @@ const UserProfileComponent = () => {
     }
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: string[] = [];
+
+    // Check each field and add specific error messages
+    if (!formData.whatsappNumber.trim()) {
+      newErrors.push("WhatsApp নম্বর দিন");
+    }
+    
+    if (!formData.bio.trim()) {
+      newErrors.push("About Me লিখুন");
+    }
+    
+    if (!formData.buildingId) {
+      newErrors.push("Building সিলেক্ট করুন");
+    }
+    
+    if (!formData.flatId) {
+      newErrors.push("Flat সিলেক্ট করুন");
+    }
+    
+    if (!formData.room.trim()) {
+      newErrors.push("Room Number দিন");
+    }
+    
+    if (!formData.guardianName.trim()) {
+      newErrors.push("Guardian Name দিন");
+    }
+    
+    if (!formData.guardianPhone.trim()) {
+      newErrors.push("Guardian Phone দিন");
+    }
+    
+    if (!formData.guardianRelation.trim()) {
+      newErrors.push("Guardian এর সাথে সম্পর্ক উল্লেখ করুন");
+    }
+    
+    if (!formData.emergencyContact.trim()) {
+      newErrors.push("Emergency Contact দিন");
+    }
+    
+    if (!formData.profilePhoto && !previewProfile) {
+      newErrors.push("Profile Photo আপলোড করুন");
+    }
+    
+    if (!formData.nidPhoto && !previewNid) {
+      newErrors.push("NID Photo আপলোড করুন");
+    }
+
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Prevent submission if account is in process or approved
-    if (isFieldsDisabled) {
-      if (isAccountApproved) {
-        toast.error(
-          "Your account is already approved. You cannot update your profile.",
-        );
-      } else {
-        toast.error(
-          "Your account is under review. You cannot update your profile at this time.",
-        );
-      }
+    // Validate form
+    if (!validateForm()) {
+      // Scroll to top to show errors
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -196,7 +247,6 @@ const UserProfileComponent = () => {
 
       // Prepare payload
       const payload = {
-        // phone: formData.phone,
         whatsappNumber: formData.whatsappNumber,
         bio: formData.bio,
         buildingId: formData.buildingId,
@@ -222,6 +272,7 @@ const UserProfileComponent = () => {
         toast.success(res.data.message || "Profile updated successfully!", {
           id: toastId,
         });
+        setErrors([]); // Clear any errors on success
       } else {
         toast.error("Failed to update profile", { id: toastId });
       }
@@ -243,6 +294,28 @@ const UserProfileComponent = () => {
           <h1 className="text-4xl font-bold text-gray-800 mb-2">My Profile</h1>
           <p className="text-gray-600">Keep your information up to date</p>
         </div>
+
+        {/* Error Messages */}
+        {errors.length > 0 && (
+          <div className="mb-6 bg-red-50 border-2 border-red-300 rounded-xl p-6 shadow-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-red-800 mb-3">
+                  ⚠️ নিচের ফিল্ডগুলো সঠিকভাবে পূরণ করুন:
+                </h3>
+                <ul className="space-y-2">
+                  {errors.map((error, index) => (
+                    <li key={index} className="text-red-700 font-medium flex items-center gap-2">
+                      <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                      {error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Account Status Banner */}
         {isAccountApproved && (
@@ -300,7 +373,6 @@ const UserProfileComponent = () => {
                       onChange={handleChange}
                       className="hidden"
                       disabled={isFieldsDisabled}
-                      required
                     />
                   </label>
                 )}
@@ -337,16 +409,15 @@ const UserProfileComponent = () => {
                   placeholder="+880 1XXX-XXXXXX"
                   value={formData.phone}
                   onChange={handleChange}
-                  required
                   disabled
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-100"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <MessageCircle className="w-4 h-4 text-green-500" />
-                  WhatsApp Number
+                  WhatsApp Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -355,14 +426,13 @@ const UserProfileComponent = () => {
                   value={formData.whatsappNumber}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
-                  required
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 />
               </div>
 
               <div className="md:col-span-2 space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  About Me
+                  About Me <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="bio"
@@ -370,7 +440,6 @@ const UserProfileComponent = () => {
                   value={formData.bio}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
-                  required
                   rows={4}
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 />
@@ -393,14 +462,13 @@ const UserProfileComponent = () => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <Building2 className="w-4 h-4 text-gray-500" />
-                  Building
+                  Building <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="buildingId"
                   value={formData.buildingId}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
-                  required
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none bg-white ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 >
                   <option value="">Select Building</option>
@@ -415,7 +483,7 @@ const UserProfileComponent = () => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <Home className="w-4 h-4 text-gray-500" />
-                  Flat
+                  Flat <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="flatId"
@@ -423,7 +491,6 @@ const UserProfileComponent = () => {
                   onChange={handleChange}
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all appearance-none bg-white ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   disabled={!formData.buildingId || isFieldsDisabled}
-                  required
                 >
                   <option value="">Select Flat</option>
                   {flats.map((f: { _id: string; name: string }) => (
@@ -436,7 +503,7 @@ const UserProfileComponent = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Room Number
+                  Room Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -445,7 +512,6 @@ const UserProfileComponent = () => {
                   value={formData.room}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
-                  required
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 />
               </div>
@@ -466,7 +532,7 @@ const UserProfileComponent = () => {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Guardian Name
+                  Guardian Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="guardianName"
@@ -474,14 +540,13 @@ const UserProfileComponent = () => {
                   value={formData.guardianName}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
-                  required
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Guardian Phone
+                  Guardian Phone <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="guardianPhone"
@@ -489,14 +554,13 @@ const UserProfileComponent = () => {
                   value={formData.guardianPhone}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
-                  required
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Relation
+                  Relation <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="guardianRelation"
@@ -504,7 +568,6 @@ const UserProfileComponent = () => {
                   value={formData.guardianRelation}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
-                  required
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 />
               </div>
@@ -512,7 +575,7 @@ const UserProfileComponent = () => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <AlertCircle className="w-4 h-4 text-red-500" />
-                  Emergency Contact
+                  Emergency Contact <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="emergencyContact"
@@ -520,7 +583,6 @@ const UserProfileComponent = () => {
                   value={formData.emergencyContact}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
-                  required
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 />
               </div>
@@ -534,7 +596,7 @@ const UserProfileComponent = () => {
             <div className="flex items-center gap-2 mb-6">
               <Upload className="w-6 h-6 text-indigo-600" />
               <h2 className="text-2xl font-bold text-gray-800">
-                Identity Verification
+                Identity Verification <span className="text-red-500">*</span>
               </h2>
             </div>
 
@@ -578,7 +640,6 @@ const UserProfileComponent = () => {
                     onChange={handleChange}
                     className="hidden"
                     disabled={isFieldsDisabled}
-                    required
                   />
                 </div>
               </label>

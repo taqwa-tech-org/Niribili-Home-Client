@@ -70,7 +70,7 @@ const UserDashboard = () => {
           transition={{ duration: 0.4 }}
         >
           <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">
-            স্বাগতম, <span className="text-gradient">{user.name}</span>
+            স্বাগতম, <span className="text-gradient">{user?.name}</span>
           </h1>
           <p className="text-muted-foreground text-sm">{today}</p>
         </motion.div>
@@ -102,9 +102,9 @@ const UserDashboard = () => {
             name={user.name}
             email={user.email}
             phone={String(user.phone)}
-            building={userProfile.buildingId.name}
-            flat={userProfile.flatId.name}
-            room={userProfile.room}
+            building={userProfile.buildingId?.name}
+            flat={userProfile.flatId?.name}
+            room={userProfile?.room}
             status="active"
           />
         </div>
