@@ -58,23 +58,36 @@ const UserBilling: React.FC = () => {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   /* ---------- Fetch transactions ---------- */
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        setLoading(true);
-        const res = await axiosSecure.get(
-          "/wallet/transactions?month=2026-01&type=deposit"
-        );
-        setTransactions(res.data?.data || []);
-      } catch (error) {
-        console.error("Failed to fetch transactions", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  
 
-    fetchTransactions();
-  }, []);
+
+  useEffect(() => {
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axiosSecure.get(
+        `/wallet/transactions?month=${currentMonth}&type=deposit`
+      );
+
+      // ✅ ONLY completed transactions
+      const completedTransactions =
+        (res.data?.data || []).filter(
+          (tx: { status: string; }) => tx.status === "completed"
+        );
+       
+      setTransactions(completedTransactions);
+    } catch (error) {
+      console.error("Failed to fetch transactions", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTransactions();
+}, []);
+
 
   const visibleTransactions = showAll
     ? transactions
@@ -96,13 +109,7 @@ const UserBilling: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 w-full sm:w-auto">
-          {/* <Button
-            variant="outline"
-            className="gap-2 border-border flex-1 sm:flex-none text-xs sm:text-sm"
-          >
-            <Download className="w-4 h-4 flex-shrink-0" />
-            <span className="truncate">ডাউনলোড ইনভয়েস</span>
-          </Button> */}
+          
           <Button className="bg-primary shadow-glow gap-2 flex-1 sm:flex-none text-xs sm:text-sm">
             <CreditCard className="w-4 h-4 flex-shrink-0" />
             <span className="truncate">পেমেন্ট করুন</span>
