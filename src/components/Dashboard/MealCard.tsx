@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { axiosSecure } from "@/hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 interface MealOrder {
   _id?: string;
@@ -156,13 +157,15 @@ export default function MealOrderingSystem() {
     setFilterDate(dateStr);
   };
 
+
+   
   // Fetch all orders
   const fetchAllOrders = async () => {
     try {
       setIsLoading(true);
       const response = await axiosSecure.get("/meals/my-orders");
       if (response.data.success) {
-        const fetchedOrders = response.data.data.map((meal: any) => ({
+        const fetchedOrders = response.data.data.map((meal:any) => ({
           _id: meal._id,
           id: meal._id,
           date: meal.mealDate,
@@ -187,7 +190,7 @@ export default function MealOrderingSystem() {
         });
       }
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      console.error("Error fetching orders:", error.response.data.message);
     } finally {
       setIsLoading(false);
     }
@@ -297,15 +300,31 @@ export default function MealOrderingSystem() {
       });
 
       if (response.data.success) {
-        // Refresh all orders from backend
-        await fetchAllOrders();
-        return true;
-      }
+  Swal.fire({
+    icon: "success",
+    title: "অর্ডার সফল হয়েছে 🎉",
+    text: "আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। ধন্যবাদ!",
+    confirmButtonText: "ঠিক আছে",
+  });
+
+  // Refresh all orders from backend
+  await fetchAllOrders();
+  return true;
+}
     } catch (error) {
-      console.error("Error creating meal orders:", error);
-      alert("অর্ডার তৈরি করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।" ,);
-      return false;
-    } finally {
+  const errorMessage =
+    error?.response?.data?.message ||
+    error?.response?.data?.errorSources?.[0]?.message ||
+    "কিছু একটা সমস্যা হয়েছে";
+
+    Swal.fire({
+    icon: "error",
+    title: "অর্ডার ব্যর্থ",
+    text: errorMessage,
+  });
+
+  return false;
+} finally {
       setIsSubmitting(false);
     }
   };
