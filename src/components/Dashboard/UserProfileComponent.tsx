@@ -136,12 +136,12 @@ const UserProfileComponent = () => {
   const uploadToCloudinary = async (file: File): Promise<string | null> => {
     const cloudinaryFormData = new FormData();
     cloudinaryFormData.append("file", file);
-    cloudinaryFormData.append("upload_preset", "Book-sell-shop");
-    cloudinaryFormData.append("cloud_name", "dvcbclqid");
+    cloudinaryFormData.append("upload_preset", "Niribili_Image_info");
+    cloudinaryFormData.append("cloud_name", "dehak09z6");
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dvcbclqid/image/upload`,
+        `https://api.cloudinary.com/v1_1/dehak09z6/image/upload`,
         {
           method: "POST",
           body: cloudinaryFormData,
