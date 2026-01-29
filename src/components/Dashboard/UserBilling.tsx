@@ -4,11 +4,11 @@ import {
   Receipt,
   History,
   CreditCard,
-  Download,
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WalletSummary from "../../pages/WalletSummary";
+
 
 /* -------------------- Types -------------------- */
 interface BillingSummary {
@@ -104,16 +104,16 @@ const UserBilling: React.FC = () => {
             <span className="truncate">আমার বিল ও পেমেন্ট</span>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-            জানুয়ারি ২০২৬ মাসের বিলিং বিবরণী
+            চলতি মাসের বিলিং বিবরণী
           </p>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 w-full sm:w-auto">
           
-          <Button className="bg-primary shadow-glow gap-2 flex-1 sm:flex-none text-xs sm:text-sm">
+          {/* <Button className="bg-primary shadow-glow gap-2 flex-1 sm:flex-none text-xs sm:text-sm">
             <CreditCard className="w-4 h-4 flex-shrink-0" />
             <span className="truncate">পেমেন্ট করুন</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
 

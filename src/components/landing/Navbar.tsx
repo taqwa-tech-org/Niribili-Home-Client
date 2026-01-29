@@ -129,7 +129,7 @@ const Navbar = () => {
                               onClick={() => setIsProfileOpen(false)}
                               className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-primary/10 transition-colors"
                             >
-                              <LayoutDashboard className="w-4 h-4" />
+                              {/* <LayoutDashboard className="w-4 h-4" /> */}
                               ড্যাশবোর্ড
                             </Link>
                             <Link to="/changepassword">
@@ -140,7 +140,7 @@ const Navbar = () => {
                               onClick={handleLogout}
                               className="flex items-center gap-2 px-4 py-2 w-full text-sm hover:bg-red-500/10 hover:text-red-500 transition-colors"
                             >
-                              <LogOut className="w-4 h-4" />
+                              {/* <LogOut className="w-4 h-4" /> */}
                               লগআউট
                             </button>
                           </div>
