@@ -17,6 +17,7 @@ import Register from "@/components/Auth/Register";
 import PaymentCancel from "@/pages/PaymentCancel";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import ChangePassword from "@/components/Auth/ChangePassword";
+import ResetPassword from "@/pages/ResetPassword";
 const appRoutes = createBrowserRouter([
   {
     path: "/",
@@ -46,6 +47,10 @@ const appRoutes = createBrowserRouter([
       {
         path: "/changepassword",
         element : <ChangePassword/>
+      },
+      {
+        path : "/resetpassword",
+        element : <ResetPassword/>
       }
     ],
   },
