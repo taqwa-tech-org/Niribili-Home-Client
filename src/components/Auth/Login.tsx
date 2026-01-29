@@ -4,6 +4,8 @@ import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import Swal from "sweetalert2";
+import { axiosSecure } from "@/hooks/useAxiosSecure";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -14,16 +16,17 @@ const Login: React.FC = () => {
 
   const navigate = useNavigate();
 
+  // 🔐 Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:8080/api/v1/auth/login", {
-        email,
-        password,
-      });
+      const res = await axios.post(
+        "http://localhost:8080/api/v1/auth/login",
+        { email, password }
+      );
 
       const { accessToken, refreshToken } = res.data.data;
 
@@ -32,12 +35,45 @@ const Login: React.FC = () => {
 
       toast.success("লগইন সফল হয়েছে 🎉");
       navigate("/");
-    } catch (err) {
-      const message = err.response?.data?.message || "লগইন করতে সমস্যা হয়েছে";
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message || "লগইন করতে সমস্যা হয়েছে";
       setError(message);
       toast.error(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 🔁 Forget Password
+  const handleForgetPassword = async () => {
+    if (!email) {
+      Swal.fire({
+        icon: "warning",
+        title: "ইমেইল প্রয়োজন",
+        text: "অনুগ্রহ করে আপনার ইমেইল লিখুন",
+      });
+      return;
+    }
+
+    try {
+      await axiosSecure.post("/auth/forget-password", { email });
+
+      Swal.fire({
+        icon: "success",
+        title: "ইমেইল পাঠানো হয়েছে",
+        text: "পাসওয়ার্ড রিসেট করার নির্দেশনা আপনার ইমেইলে পাঠানো হয়েছে",
+      });
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message ||
+        "পাসওয়ার্ড রিসেট করতে সমস্যা হয়েছে";
+
+      Swal.fire({
+        icon: "error",
+        title: "ভুল হয়েছে",
+        text: message,
+      });
     }
   };
 
@@ -81,17 +117,28 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          <p className="text-right">
+          {/* 👉 Register + Forget Password */}
+          <div className="flex justify-between items-center text-sm">
             <button
               type="button"
               onClick={() => navigate("/register")}
-              className="text-xl text-primary hover:underline"
+              className="text-primary hover:underline"
             >
               নতুন অ্যাকাউন্ট খুলুন
             </button>
-          </p>
 
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            <button
+              type="button"
+              onClick={handleForgetPassword}
+              className="text-primary hover:underline"
+            >
+              পাসওয়ার্ড ভুলে গিয়েছেন ?
+            </button>
+          </div>
+
+          {error && (
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          )}
 
           <button
             type="submit"

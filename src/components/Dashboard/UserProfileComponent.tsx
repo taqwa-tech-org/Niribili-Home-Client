@@ -17,6 +17,18 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+
+const roomsData = [
+  "Master Bed Room",
+  "Normal Room",
+  "Extra Room 1",
+  "Extra Room 2",
+  "Special Room",
+  "VIP Room",
+  "Extra Room",
+  "Sami Master Bed Room"
+]
+
 const UserProfileComponent = () => {
   const axiosSecure = useAxiosSecure();
   const { userProfile, refetchUserProfile } = useUser();
@@ -130,12 +142,12 @@ const UserProfileComponent = () => {
   const uploadToCloudinary = async (file: File): Promise<string | null> => {
     const cloudinaryFormData = new FormData();
     cloudinaryFormData.append("file", file);
-    cloudinaryFormData.append("upload_preset", "Book-sell-shop");
-    cloudinaryFormData.append("cloud_name", "dvcbclqid");
+    cloudinaryFormData.append("upload_preset", "Niribili_Image_info");
+    cloudinaryFormData.append("cloud_name", "dehak09z6");
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dvcbclqid/image/upload`,
+        `https://api.cloudinary.com/v1_1/dehak09z6/image/upload`,
         {
           method: "POST",
           body: cloudinaryFormData,
@@ -502,19 +514,27 @@ const UserProfileComponent = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Room Number <span className="text-red-500">*</span>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Home className="w-4 h-4 text-gray-500" />
+                  Select Room Name
                 </label>
-                <input
-                  type="text"
+                <select
                   name="room"
-                  placeholder="e.g., 301"
                   value={formData.room}
                   onChange={handleChange}
                   disabled={isFieldsDisabled}
                   className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${isFieldsDisabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
-                />
+
+                >
+                  <option value="">Select Room Name</option>
+                  {roomsData.map((data) => (
+                    <option value={data}>
+                      {data}
+                    </option>
+                  ))}
+                </select>
               </div>
+
             </div>
           </div>
 
@@ -651,11 +671,10 @@ const UserProfileComponent = () => {
             <button
               type="submit"
               disabled={isFieldsDisabled || isSubmitting}
-              className={`px-8 py-4 font-semibold rounded-full shadow-lg transition-all duration-200 flex items-center gap-2 ${
-                isFieldsDisabled || isSubmitting
-                  ? "bg-gray-400 cursor-not-allowed text-white"
-                  : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105"
-              }`}
+              className={`px-8 py-4 font-semibold rounded-full shadow-lg transition-all duration-200 flex items-center gap-2 ${isFieldsDisabled || isSubmitting
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transform hover:scale-105"
+                }`}
             >
               {isSubmitting ? (
                 <>
