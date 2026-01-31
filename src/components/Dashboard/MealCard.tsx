@@ -92,9 +92,9 @@ export default function MealOrderingSystem() {
 
   const cutoffTime = "22:00 (10:00 PM)";
 
-  const getStatusByTime = (): "pending" | "confirmed" => {
-    return isCutoffPassed ? "confirmed" : "pending";
-  };
+  // const getStatusByTime = (): "pending" | "confirmed" => {
+  //   return isCutoffPassed ? "confirmed" : "pending";
+  // };
 
   const canEditOrder = (orderDate: string): boolean => {
     const orderDateObj = new Date(orderDate);
@@ -164,8 +164,10 @@ export default function MealOrderingSystem() {
     try {
       setIsLoading(true);
       const response = await axiosSecure.get("/meals/my-orders");
+      // console.log(response.data.data[1])
       if (response.data.success) {
         const fetchedOrders = response.data.data.map((meal:any) => ({
+          
           _id: meal._id,
           id: meal._id,
           date: meal.mealDate,
@@ -178,6 +180,7 @@ export default function MealOrderingSystem() {
           isLocked: meal.isLocked,
           createdAt: meal.createdAt,
         }));
+        
         setOrders(fetchedOrders);
         setFilteredOrders(fetchedOrders);
 
@@ -380,7 +383,13 @@ export default function MealOrderingSystem() {
         setMealQuantities({ breakfast: 1, lunch: 1, dinner: 1 });
       }
     } else {
-      alert("এই তারিখের জন্য সব meals ইতিমধ্যে অর্ডার করা আছে।");
+      // alert("");
+      Swal.fire({
+              icon: "error",
+              // title: "রেজিস্ট্রেশন সফল 🎉",
+              text: "এই তারিখের জন্য সব meals ইতিমধ্যে অর্ডার করা আছে।",
+              // confirmButtonText: "লগইন পেজে যান",
+            });
     }
   };
 
@@ -810,7 +819,7 @@ export default function MealOrderingSystem() {
   };
 
   const groupedOrders = groupOrdersByDate();
-  const status = getStatusByTime();
+  // const status = getStatusByTime();
 
   // Generate month and year options
   const months = [
@@ -847,12 +856,15 @@ export default function MealOrderingSystem() {
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="w-full px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="text-center">
               <h1 className="text-xl sm:text-3xl font-bold text-gray-900">
                 খাবার অর্ডার করুন{" "}
               </h1>
               <p className="text-xs sm:text-base text-gray-600 mt-1">
                 আগামীকালকের খাবার আজই অর্ডার করুন রাত ১০টার মধ্যে{" "}
+              </p>
+              <p className="text-xs sm:text-base text-red-500 mt-1">
+                ( রাত ১০ টা থেকে ১২ টা পর্যন্ত খাবার অর্ডার বন্ধ থাকবে ) 
               </p>
             </div>
           </div>
@@ -1071,7 +1083,7 @@ export default function MealOrderingSystem() {
                             <span
                               className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs font-semibold capitalize whitespace-nowrap ${getStatusColor(status)}`}
                             >
-                              {status}
+                               {dayMeal.meals.breakfast?.status || dayMeal.meals.lunch?.status || dayMeal.meals.dinner?.status || 'pending'}           
                             </span>
                           </td>
                         </tr>
