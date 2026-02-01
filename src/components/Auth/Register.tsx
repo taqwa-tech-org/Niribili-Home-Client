@@ -1,9 +1,9 @@
-// src/pages/auth/Register.tsx
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Eye, EyeOff } from "lucide-react";
+import useAxiosSecure, { axiosSecure } from "@/hooks/useAxiosSecure";
 
 const Register: React.FC = () => {
   const [name, setName] = useState("");
@@ -31,12 +31,13 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:8080/api/v1/user/register", {
+      const rsc = axiosSecure.post("http://localhost:8080/api/v1/user/register", {
         name,
         phone,
         email,
         password,
-      });
+      });      
+      
 
       await Swal.fire({
         icon: "success",
