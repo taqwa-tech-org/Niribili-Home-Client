@@ -16,47 +16,63 @@ const Register: React.FC = () => {
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // 🔐 password validation
-    if (password.length < 5) {
-      Swal.fire({
-        icon: "error",
-        title: "দুর্বল পাসওয়ার্ড",
-        text: "কমপক্ষে ৫ অক্ষরের একটি শক্ত পাসওয়ার্ড ব্যবহার করুন",
-      });
-      return;
-    }
+  // 🔐 password validation
+  if (password.length < 5) {
+    Swal.fire({
+      icon: "error",
+      title: "দুর্বল পাসওয়ার্ড",
+      text: "কমপক্ষে ৫ অক্ষরের একটি শক্ত পাসওয়ার্ড ব্যবহার করুন",
+    });
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const rsc = axiosSecure.post("http://localhost:8080/api/v1/user/register", {
+  try {
+    const res = await axiosSecure.post(
+      "http://localhost:8080/api/v1/user/register",
+      {
         name,
         phone,
         email,
         password,
-      });      
-      
+      }
+    );
 
-      await Swal.fire({
-        icon: "success",
-        title: "রেজিস্ট্রেশন সফল 🎉",
-        text: "রেজিস্ট্রেশন সফল হয়েছে, অনুগ্রহ করে লগইন করুন",
-        confirmButtonText: "লগইন পেজে যান",
-      });
+    Swal.fire({
+      icon: "success",
+      title: "রেজিস্ট্রেশন সফল 🎉",
+      text: "রেজিস্ট্রেশন সফল হয়েছে, অনুগ্রহ করে লগইন করুন",
+      confirmButtonText: "লগইন পেজে যান",
+    });
 
-      navigate("/login");
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "সমস্যা হয়েছে 😢",
-        text: err.response?.data?.message || "রেজিস্ট্রেশন করা যায়নি",
-      });
-    } finally {
-      setLoading(false);
+    navigate("/login");
+  } catch (err: any) {
+    let errorMessage = "রেজিস্ট্রেশন করা যায়নি";
+
+    // ✅ Backend validation error handle
+    if (err.response?.data?.errorSources) {
+      errorMessage = err.response.data.errorSources
+        .map((error: any) => `• ${error.message}`)
+        .join("\n");
+    } 
+    // ✅ fallback message
+    else if (err.response?.data?.message) {
+      errorMessage = err.response.data.message;
     }
-  };
+
+    Swal.fire({
+      icon: "error",
+      title: "ভুল তথ্য দেওয়া হয়েছে ❌",
+      text: errorMessage,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
