@@ -7,6 +7,11 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import { axiosSecure } from "@/hooks/useAxiosSecure";
 
+const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
+
+console.log("login page", BACKEND_URL);
+
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +29,7 @@ const Login: React.FC = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:8080/api/v1/auth/login",
+        `${BACKEND_URL}/auth/login`,
         { email, password }
       );
 
