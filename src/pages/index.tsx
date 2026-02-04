@@ -15,6 +15,9 @@ const Index = () => {
       <CTA />
       <Footer />
     </div>
+      
+
+      
   );
 };
 

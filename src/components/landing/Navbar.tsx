@@ -1,18 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Home } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
+
+
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userImage, setUserImage] = useState("https://i.ibb.co.com/jvWvrYyy/images.jpg");
+  const [userName, setUserName] = useState("");
+
+  // Check for token on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setIsLoggedIn(true);
+      // You can also fetch user data here if needed
+      // const storedUserName = localStorage.getItem("userName");
+      // const storedUserImage = localStorage.getItem("userImage");
+      // if (storedUserName) setUserName(storedUserName);
+      // if (storedUserImage) setUserImage(storedUserImage);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   const navItems = [
     { name: "হোম", href: "/" },
     { name: "সুবিধাসমূহ", href: "#features" },
     { name: "নিয়মাবলী", href: "#rules" },
     { name: "যোগাযোগ", href: "#contact" },
+    { name: "ড্যাশবোর্ড", href: "/user-dashboard" }
   ];
+
+  const handleLogout = () => {
+    // Remove token from localStorage
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+   
+    
+    setIsLoggedIn(false);
+    setUserName("");
+    setUserImage("");
+    setIsProfileOpen(false);
+    setIsOpen(false);
+  };
+
+  
+ 
 
   return (
     <motion.nav
@@ -25,15 +63,16 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl  flex items-center justify-center shadow-glow transition-transform duration-300 group-hover:scale-110">
-              {/* <Home className="w-5 h-5 text-primary-foreground" /> */}
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-glow transition-transform duration-300 group-hover:scale-110">
               <img src="/niribili-logo.png" alt="niribili home logo" />
             </div>
             <div className="flex flex-col">
               <span className="font-display text-xl md:text-2xl font-semibold text-foreground leading-tight">
                 নিরিবিলি <span className="text-gradient">হোম</span>
               </span>
-              <span className="text-[10px] text-muted-foreground -mt-1">Bachelor Hostel</span>
+              <span className="text-[10px] text-muted-foreground -mt-1">
+                Bachelor Hostel
+              </span>
             </div>
           </Link>
 
@@ -53,9 +92,76 @@ const Navbar = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="hero" asChild>
-              <Link to="/login">লগইন</Link>
-            </Button>
+            {isLoggedIn ? (
+              <div className="relative">
+                {userImage ? (
+                  <>
+                    <button
+                      onClick={() => setIsProfileOpen(!isProfileOpen)}
+                      className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary hover:border-primary/70 transition-all duration-300 hover:shadow-glow"
+                    >
+                      <img
+                        src={userImage}
+                        alt={userName}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+
+                    {/* Profile Dropdown */}
+                    <AnimatePresence>
+                      {isProfileOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-lg shadow-lg overflow-hidden"
+                        >
+                          <div className="px-4 py-2 border-b">
+                            <p className="text-sm font-semibold">{userName}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Logged in
+                            </p>
+                          </div>
+                          <div className="py-1">
+                            <Link
+                              to="/user-dashboard"
+                              onClick={() => setIsProfileOpen(false)}
+                              className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-primary/10 transition-colors"
+                            >
+                              {/* <LayoutDashboard className="w-4 h-4" /> */}
+                              ড্যাশবোর্ড
+                            </Link>
+                            <Link to="/changepassword">
+                             <p className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-primary/10 transition-colors">পাসওয়ার্ড পরিবর্তন</p>
+                             
+                            </Link>
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center gap-2 px-4 py-2 w-full text-sm hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                            >
+                              {/* <LogOut className="w-4 h-4" /> */}
+                              লগআউট
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </>
+                ) : (
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    লগআউট
+                  </button>
+                )}
+              </div>
+            ) : (
+              <Button variant="hero" asChild>
+                <Link to="/login">লগইন</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -92,11 +198,9 @@ const Navbar = () => {
                   {item.name}
                 </motion.a>
               ))}
-              <div className="pt-4 border-t border-border">
-                <Button variant="hero" asChild className="w-full">
-                  <Link to="/login">লগইন</Link>
-                </Button>
-              </div>
+              <Link  to="/changepassword">
+               <p className="mt-3 hover:text-green-400">পাসওয়ার্ড পরিবর্তন</p>
+              </Link>
             </div>
           </motion.div>
         )}

@@ -1,20 +1,64 @@
-
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  UtensilsCrossed,
-  CreditCard,
-  Calendar,
-  AlertCircle,
-  ArrowRight,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import StatsCard from "@/components/Dashboard/StatsCard";
-import MealCard from "@/components/Dashboard/MealCard";
-import BillCard from "@/components/Dashboard/BillCard";
-import ResidentInfoCard from "@/components/Dashboard/ResidentInfoCard";
+import { Wallet } from "lucide-react";
 
+import ResidentInfoCard from "@/components/Dashboard/ResidentInfoCard";
+import { useUser } from "@/Context/UserProvider";
+import FullScreenLoading from "@/components/ui/FullScreenLoading";
+import { axiosSecure } from "@/hooks/useAxiosSecure";
+
+/* ---------------- Types ---------------- */
+interface MealSummary {
+  totalMealCost: number;
+  totalMeals: number;
+  currentBalance: number;
+  totalDeposited: number;
+  totalSpent: number;
+  netBalance: number;
+}
+
+interface ResidentInfoCardProps {
+  name: string;
+  email: string;
+  phone: string;
+  building: string;
+  flat: string;
+  room: string;
+  status :string
+}
+
+/* ---------------- Dashboard ---------------- */
 const UserDashboard = () => {
+  /* -------- Context -------- */
+  const { user, userProfile, userLoading, profileLoading, error } = useUser();
+
+  /* -------- Local State -------- */
+  const [mealData, setMealData] = useState<MealSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  /* -------- Fetch Meal Summary -------- */
+  useEffect(() => {
+    const fetchMealCost = async () => {
+      try {
+        const res = await axiosSecure.get("/meals/my-total-cost");
+        setMealData(res.data.data);
+      } catch (err) {
+        console.log("error from meal-total-cost", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMealCost();
+  }, []);
+
+  /* -------- Global Loading -------- */
+  if (userLoading || profileLoading || loading) return <FullScreenLoading />;
+
+  if (error) {
+    return <p className="text-red-500">কিছু একটা সমস্যা হয়েছে</p>;
+  }
+
   const today = new Date().toLocaleDateString("bn-BD", {
     weekday: "long",
     year: "numeric",
@@ -22,190 +66,84 @@ const UserDashboard = () => {
     day: "numeric",
   });
 
+  /* -------- Safe Data Access -------- */
+  const profile = userProfile;
+
   return (
-    <>
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <h1 className="font-display text-2xl md:text-3xl font-bold mb-2">
-            স্বাগতম, <span className="text-gradient">রহিম!</span>
+    <div className="py-5 space-y-6">
+      {/* Header */}
+      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <motion.div>
+          <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">
+            স্বাগতম, {user?.name || "User"}
           </h1>
-          <p className="text-muted-foreground">{today}</p>
+          <p className="text-muted-foreground text-sm">{today}</p>
         </motion.div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-        <StatsCard
-          title="মোট বাকি"
-          value="৳১২,৫০০"
-          icon={CreditCard}
-          color="destructive"
-          delay={0}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Right Side – User Info */}
+        <ResidentInfoCard
+          name={user?.name || ""}
+          email={user?.email || ""}
+          phone={user?.phone || ""}
+          building={profile?.buildingId?.name || ""}
+          flat={profile?.flatId?.name || ""}
+          room={profile?.room || ""}
+          status={
+            user?.status?.toLowerCase() === "restricted"
+              ? "restricted"
+              : "active"
+          }
         />
-        <StatsCard
-          title="এই মাসে খাবার"
-          value="৪৫"
-          change="+১২%"
-          changeType="positive"
-          icon={UtensilsCrossed}
-          color="primary"
-          delay={0.1}
-        />
-        <StatsCard
-          title="বাকি দিন"
-          value="৮"
-          icon={Calendar}
-          color="accent"
-          delay={0.2}
-        />
-        <StatsCard
-          title="নোটিফিকেশন"
-          value="২"
-          icon={AlertCircle}
-          color="muted"
-          delay={0.3}
-        />
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        {/* Left Column - Meal Orders */}
+        {/* Left Side – Meal & Wallet */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Today's Meals */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-card rounded-2xl border border-border p-6"
-          >
-            <div className="flex items-center justify-between mb-6">
+          {/* Meal Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="glass p-5 rounded-3xl">
+              <p className="text-xs">মোট মিল</p>
+              <p className="text-2xl font-black">{mealData?.totalMeals ?? 0}</p>
+            </div>
+
+            <div className="glass p-5 rounded-3xl">
+              <p className="text-xs">মোট মিল খরচ</p>
+              <p className="text-2xl font-black">
+                ৳ {mealData?.totalMealCost ?? 0}
+              </p>
+            </div>
+          </div>
+
+          {/* Wallet */}
+          <div className="glass p-6 rounded-3xl">
+            <h3 className="font-bold flex items-center gap-2 mb-4">
+              <Wallet className="w-5 h-5" /> ওয়ালেট সারাংশ
+            </h3>
+
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <h2 className="font-display text-xl font-semibold">আজকের খাবার</h2>
-                <p className="text-sm text-muted-foreground">
-                  আগামীকালের জন্য রাত ১০টার মধ্যে অর্ডার করুন
+                <p className="text-xs">বর্তমান ব্যালেন্স</p>
+                <p className="text-xl font-black text-green-500">
+                  ৳ {mealData?.currentBalance ?? 0}
                 </p>
               </div>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/user-dashboard/meals" className="flex items-center gap-1">
-                  সব দেখুন <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <MealCard
-                type="breakfast"
-                price={50}
-                time="সকাল ৭:০০ - ৯:০০"
-                isOrdered={true}
-                delay={0.3}
-              />
-              <MealCard
-                type="lunch"
-                price={80}
-                time="দুপুর ১২:৩০ - ২:৩০"
-                isOrdered={true}
-                delay={0.4}
-              />
-              <MealCard
-                type="dinner"
-                price={80}
-                time="রাত ৭:৩০ - ৯:৩০"
-                isOrdered={false}
-                delay={0.5}
-              />
-            </div>
-          </motion.div>
-
-          {/* Bill Summary */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-card rounded-2xl border border-border p-6"
-          >
-            <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="font-display text-xl font-semibold">বিল সারাংশ</h2>
-                <p className="text-sm text-muted-foreground">ডিসেম্বর ২০২৪</p>
+                <p className="text-xs">মোট জমা</p>
+                <p className="font-bold">৳ {mealData?.totalDeposited ?? 0}</p>
               </div>
-              <Button variant="hero" size="sm" asChild>
-                <Link to="/user-dashboard/billing">পেমেন্ট করুন</Link>
-              </Button>
-            </div>
 
-            <div className="space-y-3">
-              <BillCard label="রুম ভাড়া" amount={5000} status="paid" delay={0.5} />
-              <BillCard label="খাবার খরচ" amount={4200} status="pending" delay={0.55} />
-              <BillCard label="বিদ্যুৎ বিল" amount={800} status="pending" delay={0.6} />
-              <BillCard label="পানির বিল" amount={200} status="pending" delay={0.65} />
-              <BillCard label="সার্ভিস চার্জ" amount={500} status="pending" delay={0.7} />
-              <BillCard
-                label="আগের বাকি"
-                amount={1800}
-                dueDate="১০ জানু, ২০২৫"
-                status="overdue"
-                delay={0.75}
-              />
+              <div>
+                <p className="text-xs">মোট খরচ</p>
+                <p className="font-bold text-destructive">
+                  ৳ {mealData?.totalSpent ?? 0}
+                </p>
+              </div>
             </div>
-
-            <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
-              <span className="text-lg font-semibold">মোট পরিশোধযোগ্য</span>
-              <span className="font-display text-2xl font-bold text-gradient">
-                ৳১২,৫০০
-              </span>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Right Column - Profile Card */}
-        <div className="space-y-6">
-          <ResidentInfoCard
-            name="আব্দুর রহিম"
-            email="rahim@email.com"
-            phone="+৮৮০ ১৭১২-৩৪৫৬৭৮"
-            building="বিল্ডিং এ"
-            flat="৩বি"
-            room="৩০২"
-            status="active"
-          />
-
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="bg-card rounded-2xl border border-border p-6"
-          >
-            <h3 className="font-display text-lg font-semibold mb-4">দ্রুত কাজ</h3>
-            <div className="space-y-3">
-              <Button variant="secondary" className="w-full justify-start" asChild>
-                <Link to="/user-dashboard/meals">
-                  <UtensilsCrossed className="w-4 h-4 mr-2" />
-                  আগামীকালের খাবার অর্ডার
-                </Link>
-              </Button>
-              <Button variant="secondary" className="w-full justify-start" asChild>
-                <Link to="/user-dashboard/billing">
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  পেমেন্ট করুন
-                </Link>
-              </Button>
-              <Button variant="secondary" className="w-full justify-start" asChild>
-                <Link to="/user-dashboard/profile">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  প্রোফাইল আপডেট
-                </Link>
-              </Button>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

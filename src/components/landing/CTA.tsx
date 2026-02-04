@@ -5,19 +5,19 @@ import { Button } from "../ui/button";
 
 const CTA = () => {
   return (
-    <section id="contact" className="py-24 md:py-32 relative overflow-hidden">
+    <section id="contact" className="py-24 md:py-32 relative overflow-hidden ">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-hero opacity-95" />
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-teal-light/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-0  h-96 bg-teal-light/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0  h-96 bg-accent/20 rounded-full blur-3xl" />
       </div>
 
       {/* Decorative Pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-32 h-32 border border-primary-foreground rounded-2xl rotate-12" />
-        <div className="absolute top-20 right-20 w-24 h-24 border border-primary-foreground rounded-full" />
-        <div className="absolute bottom-10 left-1/4 w-40 h-40 border border-primary-foreground rounded-3xl -rotate-12" />
+        <div className="absolute top-10 left-10  h-32 border border-primary-foreground rounded-2xl rotate-12" />
+        <div className="absolute top-20 right-20  h-24 border border-primary-foreground rounded-full" />
+        <div className="absolute bottom-10 left-1/4  h-40 border border-primary-foreground rounded-3xl -rotate-12" />
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

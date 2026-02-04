@@ -6,8 +6,7 @@ import {
   UtensilsCrossed,
   CreditCard,
   User,
-  Bell,
-  Settings,
+  // Bell,
   LogOut,
   Menu,
   X,
@@ -19,11 +18,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
 const userMenuItems = [
+  {icon: Home, label: "হোম", href: "/"},
   { icon: LayoutDashboard, label: "ড্যাশবোর্ড", href: "/user-dashboard" },
   { icon: UtensilsCrossed, label: "খাবার অর্ডার", href: "/user-dashboard/meals" },
-  { icon: CreditCard, label: "বিলিং", href: "/user-dashboard/billing" },
-  { icon: User, label: "প্রোফাইল", href: "/user-dashboard/profile" },
-  { icon: Bell, label: "নোটিফিকেশন", href: "/user-dashboard/notifications" },
+  { icon: Menu, label: "বিলিং", href: "/user-dashboard/billing" },
+  {icon : CreditCard, label: "টাকা যোগ করুন", href: "/user-dashboard/addmoney"},
+  { icon: User, label: "প্রোফাইল", href: "/user-dashboard/profile" }
+  
 ];
 
 const DashboardLayout = () => {
@@ -39,12 +40,12 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex ">
       {/* Sidebar - Desktop */}
       <aside className="hidden border  lg:flex w-64 flex-col fixed inset-y-0 left-0 z-50">
 
         {/* Logo */}
-        <div className="h-16 flex items-center gap-2 px-6 border-b border-border">
+        <div className="h-16 flex items-center gap-2  px-6 border-b border-border">
           <div className="w-8 h-8 rounded-lg  flex items-center justify-center">
             <img src="/niribili-logo.png" alt="" />
           </div>
@@ -162,11 +163,7 @@ const DashboardLayout = () => {
           </button>
 
           <div className="flex-1 flex items-center justify-end gap-3">
-            {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-destructive" />
-            </Button>
+            
 
             {/* Logout */}
             <Button variant="ghost" size="icon" asChild>
