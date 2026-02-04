@@ -5,6 +5,10 @@ import Swal from "sweetalert2";
 import { Eye, EyeOff } from "lucide-react";
 import useAxiosSecure, { axiosSecure } from "@/hooks/useAxiosSecure";
 
+const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
+
+
+
 const Register: React.FC = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -26,13 +30,13 @@ const Register: React.FC = () => {
       text: "কমপক্ষে ৫ অক্ষরের একটি শক্ত পাসওয়ার্ড ব্যবহার করুন",
     });
     return;
-  }
+  };
 
   setLoading(true);
 
   try {
     const res = await axiosSecure.post(
-      "http://localhost:8080/api/v1/user/register",
+      `${BACKEND_URL}/user/register`,
       {
         name,
         phone,

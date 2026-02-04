@@ -6,6 +6,10 @@ import axios, {
 } from "axios";
 
 
+const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
+
+console.log(BACKEND_URL);
+
 interface RefreshTokenResponse {
   data: {
     accessToken: string;
@@ -21,7 +25,7 @@ let axiosSecureInstance: AxiosInstance | null = null;
 
 const createAxiosSecure = (): AxiosInstance => {
   const axiosSecure = axios.create({
-    baseURL: "http://localhost:8080/api/v1",
+    baseURL: BACKEND_URL,
     headers: {
       "Content-Type": "application/json",
     },
@@ -58,7 +62,7 @@ const createAxiosSecure = (): AxiosInstance => {
           }
 
           const res = await axios.post<RefreshTokenResponse>(
-            "http://localhost:8080/api/v1/auth/refresh-token",
+            `${BACKEND_URL}/auth/refresh-token`,
             { refreshToken }
           );
 
