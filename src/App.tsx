@@ -3,7 +3,7 @@ import "./App.css";
 
 const App = () => {
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full overflow-x-hidden">
       <Outlet />
     </div>
   );
