@@ -57,11 +57,12 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div>
-            <h4 className="font-display font-semibold text-background mb-4">
-              যোগাযোগ
-            </h4>
+          <div className="hidden md:block">
+            
             <div className="space-y-3">
+              <div className="flex items-center gap-3 text-sm">
+                
+              </div>
               <div className="flex items-center gap-3 text-sm">
                 <Phone className="w-4 h-4 text-primary" />
                 <span>+৮৮০ ১৭১২-৩৪৫৬৭৮</span>
