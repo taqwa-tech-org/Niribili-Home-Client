@@ -59,8 +59,9 @@ const Navbar = () => {
       transition={{ duration: 0.5 }}
       className="fixed top-0 left-0 right-0 z-50 glass"
     >
-      <div className="w-full px-4 sm:px-6 lg:px-8 overflow-x-hidden">
-        <div className="flex items-center justify-between h-16 md:h-20">
+     <div className="w-full px-4 sm:px-6 lg:px-8">
+
+        <div className="flex items-center justify-between h-16 md:h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-glow transition-transform duration-300 group-hover:scale-110">
@@ -115,7 +116,8 @@ const Navbar = () => {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-lg shadow-lg overflow-hidden"
+                         className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-lg shadow-lg"
+
                         >
                           <div className="px-4 py-2 border-b">
                             <p className="text-sm font-semibold">{userName}</p>

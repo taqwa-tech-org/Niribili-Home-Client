@@ -29,9 +29,10 @@ const Login: React.FC = () => {
 
     try {
       const res = await axios.post(
-        `${BACKEND_URL}/auth/login`,
-        { email, password }
-      );
+  `${import.meta.env.VITE_SERVER_URL}/auth/login`,
+  { email, password }
+);
+
 
       const { accessToken, refreshToken } = res.data.data;
 
